@@ -1,0 +1,62 @@
+{
+  "name": "@tager/web-core",
+  "version": "0.1.0-rc.4",
+  "author": "Ivan Saranchonkau",
+  "license": "MIT",
+  "module": "dist/web-core.esm.js",
+  "main": "dist/main.js",
+  "typings": "dist/main.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=12"
+  },
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build --format cjs,es,umd --entry ./src/main.ts",
+    "test": "tsdx test",
+    "lint": "tsdx lint",
+    "prepare": "yarn build"
+  },
+  "dependencies": {
+    "js-cookie": "^2.2.1",
+    "lodash": "^4.17.15",
+    "lodash-es": "^4.17.15",
+    "react-ga": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/facebook-pixel": "^0.0.20",
+    "@types/js-cookie": "^2.2.6",
+    "@types/lodash": "^4.14.156",
+    "@types/node": "12.x",
+    "@types/react": "^16.9.38",
+    "@types/react-dom": "^16.9.8",
+    "husky": "^4.2.5",
+    "next": "^9.4.4",
+    "react": "^16.13.1",
+    "tsdx": "^0.13.2",
+    "tslib": "^2.0.0",
+    "typescript": "^3.9.5"
+  },
+  "peerDependencies": {
+    "next": "^9.4.4",
+    "react": "^16.13.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsdx lint --fix",
+      "post-commit": "git update-index --again"
+    }
+  },
+  "prettier": {
+    "singleQuote": true
+  },
+  "resolutions": {
+    "prettier": "^2.x"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
