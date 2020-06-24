@@ -1,9 +1,9 @@
 {
   "name": "@tager/web-core",
-  "version": "0.1.0-rc.5",
+  "version": "0.1.2",
   "author": "Ivan Saranchonkau",
   "license": "MIT",
-  "main": "dist/main.js",
+  "main": "dist/index.js",
   "umd:main": "dist/web-core.umd.production.js",
   "module": "dist/web-core.esm.js",
   "typings": "dist/main.d.ts",
@@ -20,15 +20,17 @@
     "test": "tsdx test",
     "lint": "tsdx lint",
     "prebuild": "rimraf dist",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "dependencies": {
-    "js-cookie": "^2.2.1",
+    "cookie": "^0.4.1",
+    "js-cookie": "^3.0.0-rc.0",
     "lodash": "^4.17.15",
     "lodash-es": "^4.17.15",
     "react-ga": "^3.0.0"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^13.0.0",
     "@types/facebook-pixel": "^0.0.20",
     "@types/js-cookie": "^2.2.6",
     "@types/lodash": "^4.14.156",
