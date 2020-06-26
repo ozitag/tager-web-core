@@ -15,7 +15,8 @@ declare namespace NodeJS {
       | 'local'
       | undefined;
     readonly NEXT_PUBLIC_ORIGIN: string | undefined;
-    readonly NEXT_PUBLIC_API_URL: string | undefined;
+    readonly NEXT_PUBLIC_SSR_API_URL: string | undefined;
+    readonly NEXT_PUBLIC_CSR_API_URL: string | undefined;
     readonly NEXT_PUBLIC_SENTRY_DSN: string | undefined;
     readonly NEXT_PUBLIC_SENTRY_ENVIRONMENT: 'web' | 'admin' | undefined;
     readonly NEXT_PUBLIC_YANDEX_METRIKA_COUNTER_ID: string | undefined;

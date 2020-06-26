@@ -66,10 +66,12 @@ class ApiService {
   }
 
   private getRequestUrl(pathname = '', queryParams?: QueryParams) {
+    const baseUrl = isBrowser()
+      ? process.env.NEXT_PUBLIC_CSR_API_URL
+      : process.env.NEXT_PUBLIC_SSR_API_URL;
+
     const search = convertParamsToString(queryParams);
-    return [process.env.NEXT_PUBLIC_API_URL, pathname, search]
-      .filter(isNotNullish)
-      .join('');
+    return [baseUrl, pathname, search].filter(isNotNullish).join('');
   }
 
   configureOptions({
@@ -132,8 +134,13 @@ class ApiService {
     });
   }
 
-  logRequest(res: Response, options: RequestInit): Response {
-    const formattedLog = `${options.method} ${res.status} ${res.url}`;
+  logRequest(url: string, options: RequestInit): void {
+    const formattedLog = `--> ${options.method} ${url}`;
+    isomorphicLog(formattedLog);
+  }
+
+  logResponse(res: Response, options: RequestInit): Response {
+    const formattedLog = `<-- ${options.method} ${res.status} ${res.url}`;
     isomorphicLog(formattedLog);
     return res;
   }
@@ -145,8 +152,10 @@ class ApiService {
     const url = absoluteUrl || this.getRequestUrl(path, params);
     const options = this.configureOptions({ method, body, fetchOptions });
 
+    this.logRequest(url, options);
+
     return fetch(url, options)
-      .then((response) => this.logRequest(response, options))
+      .then((response) => this.logResponse(response, options))
       .then(this.handleErrors.bind(this));
   }
 
