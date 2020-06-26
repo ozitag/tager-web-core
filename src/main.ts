@@ -7,6 +7,11 @@ export { default as useOnKeyDown } from './hooks/useOnKeyDown';
 export { default as usePrevious } from './hooks/usePrevious';
 export { default as useSearchParams } from './hooks/useSearchParams';
 export { default as useUpdateEffect } from './hooks/useUpdateEffect';
+export { default as useFacebookPixel } from './hooks/useFacebookPixel';
+export { default as useGoogleAnalytics } from './hooks/useGoogleAnalytics';
+export { default as useYandexMetrika } from './hooks/useYandexMetrika';
+export { default as useProgressBar } from './hooks/useProgressBar';
+export { default as useGoogleTagManager } from './hooks/useGoogleTagManager';
 
 export * from './services/api';
 export { default as cookie } from './services/cookie';
