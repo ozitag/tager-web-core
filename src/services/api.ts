@@ -134,13 +134,19 @@ class ApiService {
     });
   }
 
-  logRequest(url: string, options: RequestInit): void {
+  logRequest(url: string, options: RequestInit & { startTime: number }): void {
     const formattedLog = `--> ${options.method} ${url}`;
     isomorphicLog(formattedLog);
   }
 
-  logResponse(res: Response, options: RequestInit): Response {
-    const formattedLog = `<-- ${options.method} ${res.status} ${res.url}`;
+  logResponse(
+    res: Response,
+    options: RequestInit & { startTime: number }
+  ): Response {
+    const endTime = Date.now();
+    const requestDuration = endTime - options.startTime;
+
+    const formattedLog = `<-- ${options.method} ${res.status} ${requestDuration}ms ${res.url}`;
     isomorphicLog(formattedLog);
     return res;
   }
@@ -152,10 +158,12 @@ class ApiService {
     const url = absoluteUrl || this.getRequestUrl(path, params);
     const options = this.configureOptions({ method, body, fetchOptions });
 
-    this.logRequest(url, options);
+    const startTime = Date.now();
+
+    this.logRequest(url, { ...options, startTime });
 
     return fetch(url, options)
-      .then((response) => this.logResponse(response, options))
+      .then((response) => this.logResponse(response, { ...options, startTime }))
       .then(this.handleErrors.bind(this));
   }
 
