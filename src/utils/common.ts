@@ -2,7 +2,7 @@ import { ServerResponse } from 'http';
 import round from 'lodash/round';
 
 import { FETCH_STATUSES } from '../constants/common';
-import { LoadableData, Nullable } from '../typings/common';
+import { ResourceType, Nullable, FetchStatus } from '../typings/common';
 
 /** https://github.com/zeit/next.js/issues/5354#issuecomment-520305040 */
 export function isBrowser(): boolean {
@@ -145,35 +145,35 @@ export function getImageTypeFromUrl(url: string | null): string | null {
   return null;
 }
 
+export function createResource<DataType>(
+  data: DataType,
+  status: FetchStatus,
+  error?: Nullable<string>
+): ResourceType<DataType> {
+  return {
+    data,
+    status,
+    error: error ?? null,
+  };
+}
+
 export function createResourceLoader<DataType>(initialData: DataType) {
   return {
-    getInitialResource(): LoadableData<DataType> {
-      return {
-        data: initialData,
-        status: FETCH_STATUSES.IDLE,
-        error: null,
-      };
+    getInitialResource(): ResourceType<DataType> {
+      return createResource(initialData, FETCH_STATUSES.IDLE, null);
     },
-    pending(): LoadableData<DataType> {
-      return {
-        data: initialData,
-        status: FETCH_STATUSES.LOADING,
-        error: null,
-      };
+    pending(data?: DataType): ResourceType<DataType> {
+      const resourceData = data === undefined ? initialData : data;
+      return createResource(resourceData, FETCH_STATUSES.LOADING);
     },
-    fulfill(payload: DataType): LoadableData<DataType> {
-      return {
-        data: payload,
-        status: FETCH_STATUSES.SUCCESS,
-        error: null,
-      };
+    fulfill(payload: DataType): ResourceType<DataType> {
+      return createResource(payload, FETCH_STATUSES.SUCCESS);
     },
-    reject(error?: Nullable<string>): LoadableData<DataType> {
-      return {
-        data: initialData,
-        status: FETCH_STATUSES.FAILURE,
-        error: error ?? null,
-      };
+    reject(error?: Nullable<string>): ResourceType<DataType> {
+      return createResource(initialData, FETCH_STATUSES.FAILURE, error ?? null);
+    },
+    cancel(): ResourceType<DataType> {
+      return createResource(initialData, FETCH_STATUSES.IDLE);
     },
   };
 }
