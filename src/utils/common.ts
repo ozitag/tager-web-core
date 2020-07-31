@@ -9,6 +9,10 @@ export function isBrowser(): boolean {
   return typeof window !== 'undefined';
 }
 
+export function isServer(): boolean {
+  return !isBrowser();
+}
+
 /**
  * Reference:
  * https://github.com/reach/reach-ui/blob/v0.10.4/packages/utils/src/index.tsx#L159-L165
