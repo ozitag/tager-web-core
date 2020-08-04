@@ -2,7 +2,12 @@ import { ServerResponse } from 'http';
 import round from 'lodash/round';
 
 import { FETCH_STATUSES } from '../constants/common';
-import { ResourceType, Nullable, FetchStatus } from '../typings/common';
+import {
+  ResourceType,
+  Nullable,
+  FetchStatus,
+  Nullish,
+} from '../typings/common';
 
 /** https://github.com/zeit/next.js/issues/5354#issuecomment-520305040 */
 export function isBrowser(): boolean {
@@ -212,4 +217,15 @@ export function parseUrl(absoluteUrl: string): Nullable<URL> {
   } catch (error) {
     return null;
   }
+}
+
+export function shouldGetResourceDataFromCache(
+  resource: ResourceType<unknown>,
+  shouldInvalidate: Nullish<boolean>
+): boolean {
+  const isLoading = resource.status === FETCH_STATUSES.LOADING;
+  const isInvalidatingNotNeeded =
+    resource.status === FETCH_STATUSES.SUCCESS && !shouldInvalidate;
+
+  return isInvalidatingNotNeeded || isLoading;
 }
