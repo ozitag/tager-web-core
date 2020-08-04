@@ -28,4 +28,3 @@ export * from './utils/react';
 export * from './utils/redirect';
 export * from './utils/searchParams';
 export * from './utils/validation';
-export * from './utils/linkBuilder';
