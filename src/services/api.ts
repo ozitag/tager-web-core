@@ -1,4 +1,9 @@
-import { BodyParam, HttpRequestFunction, RequestOptions } from '../typings/api';
+import {
+  BodyParam,
+  HttpMethod,
+  HttpRequestFunction,
+  RequestOptions,
+} from '../typings/api';
 import { ConstantMap, Nullable, QueryParams } from '../typings/common';
 import { isBrowser, isomorphicLog, isNotNullish } from '../utils/common';
 import { convertParamsToString } from '../utils/searchParams';
@@ -6,7 +11,12 @@ import { convertParamsToString } from '../utils/searchParams';
 import cookie from './cookie';
 import RequestError from './RequestError';
 
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+export type OAuthTokenResponseBody = {
+  token_type: string;
+  expires_in: number;
+  access_token: string;
+  refresh_token: string;
+};
 
 const HTTP_METHODS: ConstantMap<HttpMethod> = {
   GET: 'GET',
@@ -16,23 +26,90 @@ const HTTP_METHODS: ConstantMap<HttpMethod> = {
   PATCH: 'PATCH',
 };
 
+const ACCESS_TOKEN_FIELD = 'accessToken';
+const REFRESH_TOKEN_FIELD = 'refreshToken';
+
+type ApiConfigType = {
+  useRefreshToken?: boolean;
+};
+
+type ApiResponseMiddlewareOptionsType = { startTime: number };
+
+type ApiResponseMiddlewareType = (
+  response: Response,
+  request: Request,
+  options: ApiResponseMiddlewareOptionsType
+) => Promise<Response>;
+
 class ApiService {
   private accessToken: Nullable<string>;
+  private refreshToken: Nullable<string>;
+  private refreshRequest: Nullable<Promise<boolean>>;
+  private unauthorizedErrorHandler: Nullable<() => void>;
+  private config: ApiConfigType;
 
   constructor() {
     this.accessToken = null;
+    this.refreshToken = null;
+    this.refreshRequest = null;
+    this.unauthorizedErrorHandler = null;
+    this.config = {};
+  }
+
+  public setConfig(config: ApiConfigType): void {
+    this.config = { ...this.config, ...config };
+  }
+
+  /** Set refresh token on server side */
+  public setUnauthorizedErrorHandler(unauthorizedErrorHandler: () => void) {
+    this.unauthorizedErrorHandler = unauthorizedErrorHandler;
+  }
+
+  private handleUnauthorizedError(): void {
+    if (this.unauthorizedErrorHandler) {
+      this.unauthorizedErrorHandler();
+    }
   }
 
   /** Set access token on server side */
   public setAccessToken(accessToken: Nullable<string>) {
-    this.accessToken = accessToken;
+    if (isBrowser()) {
+      if (accessToken !== null) {
+        cookie.set(ACCESS_TOKEN_FIELD, accessToken);
+      } else {
+        cookie.remove(ACCESS_TOKEN_FIELD);
+      }
+    } else {
+      this.accessToken = accessToken;
+    }
   }
 
-  public getAccessToken() {
+  /** Set refresh token on server side */
+  public setRefreshToken(refreshToken: Nullable<string>) {
     if (isBrowser()) {
-      return cookie.get('accessToken');
+      if (refreshToken !== null) {
+        cookie.set(REFRESH_TOKEN_FIELD, refreshToken);
+      } else {
+        cookie.remove(REFRESH_TOKEN_FIELD);
+      }
+    } else {
+      this.accessToken = refreshToken;
+    }
+  }
+
+  public getAccessToken(): Nullable<string> {
+    if (isBrowser()) {
+      return cookie.get(ACCESS_TOKEN_FIELD);
     } else {
       return this.accessToken;
+    }
+  }
+
+  public getRefreshToken(): Nullable<string> {
+    if (isBrowser()) {
+      return cookie.get(REFRESH_TOKEN_FIELD);
+    } else {
+      return this.refreshToken;
     }
   }
 
@@ -47,7 +124,7 @@ class ApiService {
     const accessToken = this.getAccessToken();
 
     if (accessToken) {
-      headers.append('Authorization', `JWT ${accessToken}`);
+      headers.append('Authorization', `Bearer ${accessToken}`);
     }
 
     headers.append('Accept', 'application/json');
@@ -134,41 +211,155 @@ class ApiService {
     });
   }
 
-  logRequest(url: string, options: RequestInit & { startTime: number }): void {
-    const formattedLog = `--> ${options.method} ${url}`;
+  logRequest(request: Request): void {
+    const formattedLog = `--> ${request.method} ${request.url}`;
     isomorphicLog(formattedLog);
   }
 
-  logResponse(
+  async logResponse(
     res: Response,
-    options: RequestInit & { startTime: number }
-  ): Response {
+    req: Request,
+    options: ApiResponseMiddlewareOptionsType
+  ): Promise<Response> {
     const endTime = Date.now();
     const requestDuration = endTime - options.startTime;
 
-    const formattedLog = `<-- ${options.method} ${res.status} ${requestDuration}ms ${res.url}`;
+    const formattedLog = `<-- ${req.method} ${res.status} ${requestDuration}ms ${res.url}`;
     isomorphicLog(formattedLog);
     return res;
   }
 
-  async makeRequest(
-    method: HttpMethod,
-    { path, body, params, absoluteUrl, fetchOptions }: RequestOptions
-  ) {
+  private makeRefreshRequest(): Promise<boolean> {
+    const url = this.getRequestUrl('/oauth/user/token');
+    const options = this.configureOptions({
+      method: HTTP_METHODS.POST,
+      body: {
+        grant_type: 'refresh_token',
+        client_id: 1,
+        refresh_token: this.getRefreshToken(),
+      },
+    });
+
+    const request = new Request(url, options);
+
+    return fetch(request)
+      .then<OAuthTokenResponseBody>(this.handleErrors.bind(this))
+      .then((body) => {
+        this.setAccessToken(body.access_token);
+        this.setRefreshToken(body.refresh_token);
+
+        return true;
+      })
+      .catch((error) => {
+        isomorphicLog(error);
+
+        this.setAccessToken(null);
+        this.setRefreshToken(null);
+
+        return false;
+      })
+      .finally(() => {
+        this.refreshRequest = null;
+      });
+  }
+
+  private async refreshMiddleware(
+    response: Response,
+    request: Request
+  ): Promise<Response> {
+    if (response.status !== 401 || !this.getRefreshToken()) return response;
+
+    if (!this.refreshRequest) {
+      this.refreshRequest = this.makeRefreshRequest();
+    }
+
+    const isSuccess = await this.refreshRequest;
+
+    if (isSuccess) {
+      /** TODO make middlewares like axios, via config with "retry" option */
+      const newRequest = request.clone();
+      newRequest.headers.set(
+        'Authorization',
+        `Bearer ${this.getAccessToken()}`
+      );
+
+      this.logRequest(newRequest);
+
+      const middlewareOptions: ApiResponseMiddlewareOptionsType = {
+        startTime: Date.now(),
+      };
+
+      return fetch(newRequest).then((response) =>
+        this.logResponse(response, newRequest, middlewareOptions)
+      );
+    } else {
+      return response;
+    }
+  }
+
+  private async unauthorizedMiddleware(response: Response): Promise<Response> {
+    if (response.status === 401) {
+      this.handleUnauthorizedError();
+    }
+
+    return response;
+  }
+
+  createRequest({
+    method,
+    path,
+    body,
+    params,
+    absoluteUrl,
+    fetchOptions,
+  }: RequestOptions): Request {
     const url = absoluteUrl || this.getRequestUrl(path, params);
     const options = this.configureOptions({ method, body, fetchOptions });
 
-    const startTime = Date.now();
+    return new Request(url, options);
+  }
 
-    this.logRequest(url, { ...options, startTime });
+  runResponseMiddlewares(
+    response: Response,
+    request: Request,
+    options: ApiResponseMiddlewareOptionsType
+  ): Promise<Response> {
+    const middlewareList: Array<ApiResponseMiddlewareType> = [
+      this.logResponse.bind(this),
+    ];
 
-    return fetch(url, options)
-      .then((response) => this.logResponse(response, { ...options, startTime }))
+    if (this.config.useRefreshToken) {
+      middlewareList.push(this.refreshMiddleware.bind(this));
+    }
+
+    middlewareList.push(this.unauthorizedMiddleware.bind(this));
+
+    return middlewareList.reduce(
+      (promise, middleware) =>
+        promise.then((response) => middleware(response, request, options)),
+      Promise.resolve(response)
+    );
+  }
+
+  executeRequest(request: Request) {
+    this.logRequest(request);
+
+    const middlewareOptions: ApiResponseMiddlewareOptionsType = {
+      startTime: Date.now(),
+    };
+
+    return fetch(request)
+      .then((response) =>
+        this.runResponseMiddlewares(response, request, middlewareOptions)
+      )
       .then(this.handleErrors.bind(this));
   }
 
   bindHttpMethod(method: HttpMethod): HttpRequestFunction {
-    return this.makeRequest.bind(this, method);
+    return (options: Omit<RequestOptions, 'method'>) => {
+      const request = this.createRequest({ ...options, method });
+      return this.executeRequest(request);
+    };
   }
 }
 

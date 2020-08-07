@@ -1,6 +1,6 @@
 {
   "name": "@tager/web-core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "Ivan Saranchonkau",
   "license": "MIT",
   "main": "dist/index.js",
@@ -16,7 +16,7 @@
   },
   "scripts": {
     "start": "tsdx watch",
-    "build": "cross-env NODE_ENV=production tsdx build --format=cjs,esm,umd --entry ./src/main.ts",
+    "build": "cross-env NODE_ENV=production tsdx build --format=cjs,esm --entry ./src/main.ts",
     "test": "tsdx test",
     "lint": "tsdx lint",
     "prebuild": "rimraf dist",

@@ -10,6 +10,7 @@ export type JsonParseResult =
   | null;
 
 export type ParsedResponseBody = JsonParseResult | string | null;
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 export type RequestOptions = {
   path?: string;
@@ -17,10 +18,11 @@ export type RequestOptions = {
   params?: QueryParams;
   absoluteUrl?: string;
   fetchOptions?: RequestInit;
+  method: HttpMethod;
 };
 
 export type HttpRequestFunction = <T = ParsedResponseBody>(
-  options: RequestOptions
+  options: Omit<RequestOptions, 'method'>
 ) => Promise<T>;
 
 export type ValidationError = { code: string; message: string };
