@@ -97,7 +97,7 @@ class ApiService {
         cookie.remove(REFRESH_TOKEN_COOKIE);
       }
     } else {
-      this.accessToken = refreshToken;
+      this.refreshToken = refreshToken;
     }
   }
 
