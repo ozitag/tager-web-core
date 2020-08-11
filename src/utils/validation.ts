@@ -1,7 +1,5 @@
-import { ValidationError } from '../typings/api';
+import * as t from 'typed-contracts';
 import RequestError from '../services/RequestError';
-
-import { isNonNullObjectGuard } from './common';
 
 /**
  * Reference - The regex used in input with type="email" from W3C HTML Living Standard:
@@ -18,34 +16,31 @@ export const validators = {
   },
 };
 
-export function isValidationError(value: any): value is ValidationError {
-  return Boolean(
-    value &&
-      typeof value === 'object' &&
-      typeof value.code === 'string' &&
-      typeof value.message === 'string'
-  );
-}
+const requestErrorBodyContract = t.object({
+  errors: t.objectOf(
+    t.object({
+      code: t.string,
+      message: t.string,
+    })
+  ),
+});
 
 export function convertRequestErrorToMap(error: Error): Record<string, string> {
   if (error instanceof RequestError) {
-    const responseBody = error.body;
+    const validationResult = requestErrorBodyContract(
+      'RequestError.body',
+      error.body
+    );
 
-    if (
-      isNonNullObjectGuard(responseBody) &&
-      'errors' in responseBody &&
-      isNonNullObjectGuard(responseBody.errors)
-    ) {
-      const { errors } = responseBody as { errors: Record<string, any> };
-
-      return Object.keys(errors)
-        .filter((key) => isValidationError(errors[key]))
-        .reduce<Record<string, string>>((result, key) => {
-          if (responseBody.errors) {
-            result[key] = (responseBody.errors[key] as ValidationError).message;
-          }
-          return result;
-        }, {});
+    if (validationResult instanceof t.ValidationError) {
+      return {};
+    } else {
+      return Object.keys(validationResult.errors).reduce<
+        Record<string, string>
+      >((result, key) => {
+        result[key] = validationResult.errors[key].message;
+        return result;
+      }, {});
     }
   }
 

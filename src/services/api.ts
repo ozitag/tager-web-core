@@ -26,8 +26,8 @@ const HTTP_METHODS: ConstantMap<HttpMethod> = {
   PATCH: 'PATCH',
 };
 
-const ACCESS_TOKEN_FIELD = 'accessToken';
-const REFRESH_TOKEN_FIELD = 'refreshToken';
+export const ACCESS_TOKEN_COOKIE = 'accessToken';
+export const REFRESH_TOKEN_COOKIE = 'refreshToken';
 
 type ApiConfigType = {
   useRefreshToken?: boolean;
@@ -42,15 +42,19 @@ type ApiResponseMiddlewareType = (
 ) => Promise<Response>;
 
 class ApiService {
+  /** Server side only */
   private accessToken: Nullable<string>;
   private refreshToken: Nullable<string>;
+
   private refreshRequest: Nullable<Promise<boolean>>;
   private unauthorizedErrorHandler: Nullable<() => void>;
   private config: ApiConfigType;
 
   constructor() {
+    /** Server side only */
     this.accessToken = null;
     this.refreshToken = null;
+
     this.refreshRequest = null;
     this.unauthorizedErrorHandler = null;
     this.config = {};
@@ -75,9 +79,9 @@ class ApiService {
   public setAccessToken(accessToken: Nullable<string>) {
     if (isBrowser()) {
       if (accessToken !== null) {
-        cookie.set(ACCESS_TOKEN_FIELD, accessToken);
+        cookie.set(ACCESS_TOKEN_COOKIE, accessToken);
       } else {
-        cookie.remove(ACCESS_TOKEN_FIELD);
+        cookie.remove(ACCESS_TOKEN_COOKIE);
       }
     } else {
       this.accessToken = accessToken;
@@ -88,9 +92,9 @@ class ApiService {
   public setRefreshToken(refreshToken: Nullable<string>) {
     if (isBrowser()) {
       if (refreshToken !== null) {
-        cookie.set(REFRESH_TOKEN_FIELD, refreshToken);
+        cookie.set(REFRESH_TOKEN_COOKIE, refreshToken);
       } else {
-        cookie.remove(REFRESH_TOKEN_FIELD);
+        cookie.remove(REFRESH_TOKEN_COOKIE);
       }
     } else {
       this.accessToken = refreshToken;
@@ -99,7 +103,7 @@ class ApiService {
 
   public getAccessToken(): Nullable<string> {
     if (isBrowser()) {
-      return cookie.get(ACCESS_TOKEN_FIELD);
+      return cookie.get(ACCESS_TOKEN_COOKIE);
     } else {
       return this.accessToken;
     }
@@ -107,7 +111,7 @@ class ApiService {
 
   public getRefreshToken(): Nullable<string> {
     if (isBrowser()) {
-      return cookie.get(REFRESH_TOKEN_FIELD);
+      return cookie.get(REFRESH_TOKEN_COOKIE);
     } else {
       return this.refreshToken;
     }

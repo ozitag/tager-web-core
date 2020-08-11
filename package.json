@@ -1,6 +1,6 @@
 {
   "name": "@tager/web-core",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "author": "Ivan Saranchonkau",
   "license": "MIT",
   "main": "dist/index.js",
@@ -30,7 +30,8 @@
     "nprogress": "^0.2.0",
     "react-ga": "^3.1.2",
     "react-gtm-module": "^2.0.10",
-    "tua-body-scroll-lock": "^1.1.0"
+    "tua-body-scroll-lock": "^1.1.0",
+    "typed-contracts": "^2.3.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^14.0.0",
