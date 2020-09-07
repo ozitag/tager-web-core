@@ -35,6 +35,7 @@ function useProgressBar(options: Partial<NProgressOptions>) {
       resetTimeoutIfNeeded();
       NProgress.done();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
 

@@ -1,4 +1,4 @@
-import { lock, unlock } from 'tua-body-scroll-lock';
+import { lock, unlock, clearBodyLocks } from 'tua-body-scroll-lock';
 
 import { isServer } from '../utils/common';
 
@@ -44,6 +44,11 @@ class Scroller {
 
   unlock(...args: Parameters<typeof unlock>) {
     unlock(...args);
+    this.setLocked(false);
+  }
+
+  unlockAll() {
+    clearBodyLocks();
     this.setLocked(false);
   }
 
