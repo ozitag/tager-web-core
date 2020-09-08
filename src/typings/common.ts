@@ -11,9 +11,9 @@ export type ConstantMap<C extends string> = Readonly<Record<C, C>>;
 
 export type FetchStatus = 'IDLE' | 'LOADING' | 'SUCCESS' | 'FAILURE';
 
-export type ResourceType<T, E = string> = {
+export type ResourceType<T, Status = FetchStatus, E = string> = {
   data: T;
-  status: FetchStatus;
+  status: Status;
   error: Nullable<E>;
 };
 
