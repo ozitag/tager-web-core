@@ -26,6 +26,7 @@ export { default as YandexMetrika } from './services/YandexMetrika';
 export * from './typings/common';
 
 export * from './utils/common';
+export * from './utils/nl2br';
 export * from './utils/react';
 export * from './utils/redirect';
 export * from './utils/searchParams';
