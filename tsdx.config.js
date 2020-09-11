@@ -8,7 +8,7 @@ const path = require('path');
 function external(id) {
     const peerDependencies = ['react', 'next']
     const externalDependencies = ['cookie'];
-    const dependencies = ['js-cookie', 'react-ga', 'lodash/round', 'lodash-es/round']
+    const dependencies = ['js-cookie', 'lodash/round', 'lodash-es/round']
 
     if (dependencies.includes(id)) return false;
     if (peerDependencies.includes(id) || externalDependencies.includes(id)) return true;

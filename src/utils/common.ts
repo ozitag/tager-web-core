@@ -234,6 +234,6 @@ export function appendScriptCodeToBody(scriptCode: string): void {
   if (!canUseDOM()) return;
 
   const script = document.createElement('script');
-  script.src = scriptCode;
+  script.text = scriptCode;
   document.body.appendChild(script);
 }
