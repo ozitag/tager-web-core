@@ -1,24 +1,33 @@
 import { canUseDOM } from '../utils/common';
+import { Nullable } from '../typings/common';
 
 /**
  * Reference: Yandex.Metrika Javascript API
  * https://yandex.ru/support/metrica/objects/method-reference.html
  */
 class YandexMetrika {
-  counterId: string | undefined;
+  counterId: string;
 
   constructor() {
-    this.counterId = process.env.NEXT_PUBLIC_YANDEX_METRIKA_COUNTER_ID;
+    this.counterId = '';
   }
 
   isTrackerEnabled(): boolean {
     return Boolean(this.counterId && canUseDOM() && window.ym);
   }
 
-  init() {
-    if (!this.counterId || !canUseDOM() || !window.ym) return;
+  getYM(): Nullable<YandexMetrikaFunction> {
+    if (this.counterId && canUseDOM() && window.ym) return window.ym;
 
-    window.ym(this.counterId, 'init', {
+    return null;
+  }
+
+  init(counterId: string) {
+    this.counterId = counterId;
+    const ym = this.getYM();
+    if (!ym) return;
+
+    ym(this.counterId, 'init', {
       clickmap: true,
       trackLinks: true,
       accurateTrackBounce: true,
@@ -27,9 +36,10 @@ class YandexMetrika {
   }
 
   trackPageView() {
-    if (!this.counterId || !canUseDOM() || !window.ym) return;
+    const ym = this.getYM();
+    if (!ym) return;
 
-    window.ym(this.counterId, 'hit', window.location.pathname);
+    ym(this.counterId, 'hit', window.location.pathname);
   }
 }
 
