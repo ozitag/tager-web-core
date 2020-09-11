@@ -1,19 +1,17 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { Router } from 'next/router';
 
-import GoogleAnalytics from '../services/GoogleAnalytics';
+import googleAnalytics from '../services/googleAnalytics';
 
-function useGoogleAnalytics() {
-  const googleTrackerRef = useRef(new GoogleAnalytics());
-
+function useGoogleAnalytics(trackingId: string): void {
   useEffect(() => {
-    const { current: googleTracker } = googleTrackerRef;
+    if (!trackingId) return;
 
-    googleTracker.init();
-    googleTracker.trackPageView();
+    googleAnalytics.init(trackingId);
+    googleAnalytics.trackPageView();
 
     function handleRouteChangeComplete() {
-      googleTracker.trackPageView();
+      googleAnalytics.trackPageView();
     }
 
     Router.events.on('routeChangeComplete', handleRouteChangeComplete);
@@ -21,9 +19,7 @@ function useGoogleAnalytics() {
     return () => {
       Router.events.off('routeChangeComplete', handleRouteChangeComplete);
     };
-  }, []);
-
-  return googleTrackerRef.current;
+  }, [trackingId]);
 }
 
 export default useGoogleAnalytics;

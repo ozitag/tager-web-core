@@ -1,5 +1,15 @@
-import { canUseDOM } from '../utils/common';
+import { appendScriptCodeToBody, canUseDOM } from '../utils/common';
 import { Nullable } from '../typings/common';
+
+/**
+ * Reference:
+ * https://yandex.ru/support/metrica/code/counter-initialize.html
+ */
+const SCRIPT_CODE = `
+(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+`;
 
 /**
  * Reference: Yandex.Metrika Javascript API
@@ -12,19 +22,26 @@ class YandexMetrika {
     this.counterId = '';
   }
 
-  isTrackerEnabled(): boolean {
-    return Boolean(this.counterId && canUseDOM() && window.ym);
-  }
-
-  getYM(): Nullable<YandexMetrikaFunction> {
-    if (this.counterId && canUseDOM() && window.ym) return window.ym;
+  getTracker(): Nullable<YandexMetrikaFunction> {
+    if (this.counterId && canUseDOM() && window.ym) {
+      return window.ym;
+    }
 
     return null;
   }
 
+  isTrackerEnabled(): boolean {
+    const ym = this.getTracker();
+
+    return Boolean(ym);
+  }
+
   init(counterId: string) {
     this.counterId = counterId;
-    const ym = this.getYM();
+
+    appendScriptCodeToBody(SCRIPT_CODE);
+
+    const ym = this.getTracker();
     if (!ym) return;
 
     ym(this.counterId, 'init', {
@@ -36,7 +53,7 @@ class YandexMetrika {
   }
 
   trackPageView() {
-    const ym = this.getYM();
+    const ym = this.getTracker();
     if (!ym) return;
 
     ym(this.counterId, 'hit', window.location.pathname);
@@ -140,4 +157,6 @@ declare global {
   }
 }
 
-export default YandexMetrika;
+const yandexMetrika = new YandexMetrika();
+
+export default yandexMetrika;

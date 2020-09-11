@@ -1,14 +1,14 @@
 import TagManager from 'react-gtm-module';
 import { useEffect } from 'react';
 
-function useGoogleTagManager() {
+function useGoogleTagManager(gtmId: string) {
   useEffect(() => {
-    if (process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID) {
-      TagManager.initialize({
-        gtmId: process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID,
-      });
-    }
-  }, []);
+    if (!gtmId) return;
+
+    TagManager.initialize({
+      gtmId,
+    });
+  }, [gtmId]);
 }
 
 export default useGoogleTagManager;

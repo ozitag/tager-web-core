@@ -1,16 +1,13 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { Router } from 'next/router';
 
-import FacebookPixel from '../services/FacebookPixel';
+import facebookPixel from '../services/facebookPixel';
 
-function useFacebookPixel() {
-  const facebookPixelRef = useRef(new FacebookPixel());
-
+function useFacebookPixel(pixelId: string): void {
   useEffect(() => {
-    const { current: facebookPixel } = facebookPixelRef;
-    if (!facebookPixel.isTrackerEnabled()) return;
+    if (!pixelId) return;
 
-    facebookPixel.init();
+    facebookPixel.init(pixelId);
     facebookPixel.trackPageView();
 
     function handleRouteChangeComplete() {
@@ -22,9 +19,7 @@ function useFacebookPixel() {
     return () => {
       Router.events.off('routeChangeComplete', handleRouteChangeComplete);
     };
-  }, []);
-
-  return facebookPixelRef.current;
+  }, [pixelId]);
 }
 
 export default useFacebookPixel;

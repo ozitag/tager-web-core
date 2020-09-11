@@ -229,3 +229,11 @@ export function shouldGetResourceDataFromCache(
 
   return isInvalidatingNotNeeded || isLoading;
 }
+
+export function appendScriptCodeToBody(scriptCode: string): void {
+  if (!canUseDOM()) return;
+
+  const script = document.createElement('script');
+  script.src = scriptCode;
+  document.body.appendChild(script);
+}

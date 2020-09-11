@@ -1,29 +1,23 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { Router } from 'next/router';
+import yandexMetrika from '../services/YandexMetrika';
 
-import YandexMetrika from '../services/YandexMetrika';
-
-function useYandexMetrika() {
-  const yandexTrackerRef = useRef(new YandexMetrika());
-
+function useYandexMetrika(counterId: string): void {
   useEffect(() => {
-    const { current: yandexTracker } = yandexTrackerRef;
-    if (!yandexTracker.isTrackerEnabled()) return;
+    if (!counterId) return;
 
-    yandexTracker.init();
-    yandexTracker.trackPageView();
+    yandexMetrika.init(counterId);
+    yandexMetrika.trackPageView();
 
     function handleRouteChangeComplete() {
-      yandexTracker.trackPageView();
+      yandexMetrika.trackPageView();
     }
     Router.events.on('routeChangeComplete', handleRouteChangeComplete);
 
     return () => {
       Router.events.off('routeChangeComplete', handleRouteChangeComplete);
     };
-  }, []);
-
-  return yandexTrackerRef.current;
+  }, [counterId]);
 }
 
 export default useYandexMetrika;
