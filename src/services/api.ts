@@ -12,10 +12,11 @@ import cookie from './cookie';
 import RequestError from './RequestError';
 
 export type OAuthTokenResponseBody = {
-  token_type: string;
-  expires_in: number;
-  access_token: string;
-  refresh_token: string;
+  tokenType: string;
+  expiresAt: number;
+  accessToken: string;
+  refreshToken: string;
+  scopes: Array<string>;
 };
 
 const HTTP_METHODS: ConstantMap<HttpMethod> = {
@@ -249,8 +250,8 @@ class ApiService {
     return fetch(request)
       .then<OAuthTokenResponseBody>(this.handleErrors.bind(this))
       .then((body) => {
-        this.setAccessToken(body.access_token);
-        this.setRefreshToken(body.refresh_token);
+        this.setAccessToken(body.accessToken);
+        this.setRefreshToken(body.refreshToken);
 
         return true;
       })
