@@ -49,3 +49,16 @@ export type ResponseBody<Data = any> = {
   errors?: Record<string, ValidationError>;
   message?: string;
 } & Partial<LaravelError>;
+
+/** Fields */
+
+export type ButtonFieldValueType = Nullable<{
+  label: Nullable<string>;
+  link: Nullable<string>;
+  isNewTab: boolean;
+}>;
+
+export type MapFieldValueType = Nullable<{
+  latitude: number;
+  longitude: number;
+}>;
