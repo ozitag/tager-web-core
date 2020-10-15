@@ -140,7 +140,7 @@ class ApiService {
   private configureBody(body?: BodyParam) {
     if (!body) return undefined;
 
-    if (body instanceof FormData) {
+    if (isBrowser() && body instanceof FormData) {
       return body;
     }
 
