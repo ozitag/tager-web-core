@@ -5,7 +5,12 @@ import {
   RequestOptions,
 } from '../typings/api';
 import { ConstantMap, Nullable, QueryParams } from '../typings/common';
-import { isBrowser, isomorphicLog, isNotNullish } from '../utils/common';
+import {
+  isBrowser,
+  isomorphicLog,
+  isNotNullish,
+  isNonNullObjectGuard,
+} from '../utils/common';
 import { convertParamsToString } from '../utils/searchParams';
 
 import cookie from './cookie';
@@ -30,8 +35,11 @@ const HTTP_METHODS: ConstantMap<HttpMethod> = {
 export const ACCESS_TOKEN_COOKIE = 'accessToken';
 export const REFRESH_TOKEN_COOKIE = 'refreshToken';
 
+type ApiBaseUrl = { ssr: string | undefined; csr: string | undefined } | string;
+
 type ApiConfigType = {
   useRefreshToken?: boolean;
+  baseUrl?: ApiBaseUrl;
 };
 
 type ApiResponseMiddlewareOptionsType = { startTime: number };
@@ -42,7 +50,15 @@ type ApiResponseMiddlewareType = (
   options: ApiResponseMiddlewareOptionsType
 ) => Promise<Response>;
 
-class ApiService {
+const DEFAULT_CONFIG: ApiConfigType = {
+  useRefreshToken: false,
+  baseUrl: {
+    csr: process.env.NEXT_PUBLIC_CSR_API_URL,
+    ssr: process.env.NEXT_PUBLIC_SSR_API_URL,
+  },
+};
+
+export class ApiService {
   /** Server side only */
   private accessToken: Nullable<string>;
   private refreshToken: Nullable<string>;
@@ -51,18 +67,28 @@ class ApiService {
   private unauthorizedErrorHandler: Nullable<() => void>;
   private config: ApiConfigType;
 
-  constructor() {
+  constructor(config?: ApiConfigType) {
     /** Server side only */
     this.accessToken = null;
     this.refreshToken = null;
 
     this.refreshRequest = null;
     this.unauthorizedErrorHandler = null;
-    this.config = {};
+    this.config = config || DEFAULT_CONFIG;
   }
 
   public setConfig(config: ApiConfigType): void {
     this.config = { ...this.config, ...config };
+  }
+
+  public getBaseUrl(): string | undefined {
+    const baseUrl = this.config.baseUrl ?? DEFAULT_CONFIG.baseUrl;
+
+    if (isNonNullObjectGuard(baseUrl)) {
+      return isBrowser() ? baseUrl.csr : baseUrl.ssr;
+    }
+
+    return baseUrl;
   }
 
   /** Set refresh token on server side */
@@ -148,9 +174,7 @@ class ApiService {
   }
 
   private getRequestUrl(pathname = '', queryParams?: QueryParams) {
-    const baseUrl = isBrowser()
-      ? process.env.NEXT_PUBLIC_CSR_API_URL
-      : process.env.NEXT_PUBLIC_SSR_API_URL;
+    const baseUrl = this.getBaseUrl();
 
     const search = convertParamsToString(queryParams);
     return [baseUrl, pathname, search].filter(isNotNullish).join('');
@@ -216,8 +240,13 @@ class ApiService {
     });
   }
 
-  logRequest(request: Request): void {
-    const formattedLog = `--> ${request.method} ${request.url}`;
+  logRequest(request: Request, comment?: string): void {
+    let formattedLog = `--> ${request.method} ${request.url}`;
+
+    if (comment) {
+      formattedLog = formattedLog + ` - ${comment}`;
+    }
+
     isomorphicLog(formattedLog);
   }
 
@@ -235,20 +264,29 @@ class ApiService {
   }
 
   private makeRefreshRequest(): Promise<boolean> {
-    const url = this.getRequestUrl('/oauth/user/token');
+    const url = this.getRequestUrl('/auth/user');
     const options = this.configureOptions({
       method: HTTP_METHODS.POST,
       body: {
-        grant_type: 'refresh_token',
-        client_id: 1,
-        refresh_token: this.getRefreshToken(),
+        clientId: 1,
+        grantType: 'refresh_token',
+        refreshToken: this.getRefreshToken(),
       },
     });
 
     const request = new Request(url, options);
 
+    this.logRequest(request, 'Refresh token');
+
+    const middlewareOptions: ApiResponseMiddlewareOptionsType = {
+      startTime: Date.now(),
+    };
+
     return fetch(request)
-      .then<OAuthTokenResponseBody>(this.handleErrors.bind(this))
+      .then((response) =>
+        this.logResponse(response, request, middlewareOptions)
+      )
+      .then<OAuthTokenResponseBody>((response) => this.handleErrors(response))
       .then((body) => {
         this.setAccessToken(body.accessToken);
         this.setRefreshToken(body.refreshToken);
@@ -256,7 +294,9 @@ class ApiService {
         return true;
       })
       .catch((error) => {
-        isomorphicLog(error);
+        if (!(error instanceof RequestError)) {
+          isomorphicLog(error);
+        }
 
         this.setAccessToken(null);
         this.setRefreshToken(null);
@@ -360,20 +400,24 @@ class ApiService {
       .then(this.handleErrors.bind(this));
   }
 
-  bindHttpMethod(method: HttpMethod): HttpRequestFunction {
+  bindHttpMethodToRequest(method: HttpMethod): HttpRequestFunction {
     return (options: Omit<RequestOptions, 'method'>) => {
       const request = this.createRequest({ ...options, method });
       return this.executeRequest(request);
     };
   }
+
+  getRequest() {
+    return {
+      get: this.bindHttpMethodToRequest(HTTP_METHODS.GET),
+      post: this.bindHttpMethodToRequest(HTTP_METHODS.POST),
+      put: this.bindHttpMethodToRequest(HTTP_METHODS.PUT),
+      delete: this.bindHttpMethodToRequest(HTTP_METHODS.DELETE),
+      patch: this.bindHttpMethodToRequest(HTTP_METHODS.PATCH),
+    } as const;
+  }
 }
 
 export const api = new ApiService();
 
-export const request = {
-  get: api.bindHttpMethod(HTTP_METHODS.GET),
-  post: api.bindHttpMethod(HTTP_METHODS.POST),
-  put: api.bindHttpMethod(HTTP_METHODS.PUT),
-  delete: api.bindHttpMethod(HTTP_METHODS.DELETE),
-  patch: api.bindHttpMethod(HTTP_METHODS.PATCH),
-} as const;
+export const request = api.getRequest();
