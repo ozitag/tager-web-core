@@ -4,7 +4,12 @@ import {
   HttpRequestFunction,
   RequestOptions,
 } from '../typings/api';
-import { ConstantMap, Nullable, QueryParams } from '../typings/common';
+import {
+  ConstantMap,
+  Nullable,
+  QueryParams,
+  ResponseBody,
+} from '../typings/common';
 import {
   isBrowser,
   isomorphicLog,
@@ -286,10 +291,12 @@ export class ApiService {
       .then((response) =>
         this.logResponse(response, request, middlewareOptions)
       )
-      .then<OAuthTokenResponseBody>((response) => this.handleErrors(response))
+      .then<ResponseBody<OAuthTokenResponseBody>>((response) =>
+        this.handleErrors(response)
+      )
       .then((body) => {
-        this.setAccessToken(body.accessToken);
-        this.setRefreshToken(body.refreshToken);
+        this.setAccessToken(body.data.accessToken);
+        this.setRefreshToken(body.data.refreshToken);
 
         return true;
       })
