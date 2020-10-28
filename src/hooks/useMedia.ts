@@ -1,14 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-import { canUseDOM } from '../utils/common';
+import { useIsomorphicLayoutEffect } from '../utils/react';
 
 /** Source: https://github.com/streamich/react-use/blob/master/src/useMedia.ts */
 function useMedia(query: string, defaultState: boolean = false) {
-  const [state, setState] = useState(
-    canUseDOM() ? () => window.matchMedia(query).matches : defaultState
-  );
+  const [state, setState] = useState(defaultState);
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     let mounted = true;
     const mql = window.matchMedia(query);
     const onChange = () => {
