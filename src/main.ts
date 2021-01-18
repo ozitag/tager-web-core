@@ -1,6 +1,7 @@
 export * from './constants/common';
 
 export { default as useDebounce } from './hooks/useDebounce';
+export { default as useFixedVhProperty } from './hooks/useFixedVhProperty';
 export { default as useMedia } from './hooks/useMedia';
 export { default as useOnClickOutside } from './hooks/useOnClickOutside';
 export { default as useOnKeyDown } from './hooks/useOnKeyDown';
