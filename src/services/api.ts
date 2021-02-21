@@ -72,6 +72,8 @@ export class ApiService {
   private unauthorizedErrorHandler: Nullable<() => void>;
   private config: ApiConfigType;
 
+  private language: Nullable<string>;
+
   constructor(config?: ApiConfigType) {
     /** Server side only */
     this.accessToken = null;
@@ -80,6 +82,8 @@ export class ApiService {
     this.refreshRequest = null;
     this.unauthorizedErrorHandler = null;
     this.config = config || DEFAULT_CONFIG;
+
+    this.language = process.env.NEXT_PUBLIC_LANGUAGE ?? null;
   }
 
   public setConfig(config: ApiConfigType): void {
@@ -94,6 +98,14 @@ export class ApiService {
     }
 
     return baseUrl;
+  }
+
+  public getLanguage(): Nullable<string> {
+    return this.language;
+  }
+
+  public setLanguage(lang: Nullable<string>): void {
+    this.language = lang;
   }
 
   /** Set refresh token on server side */
@@ -161,6 +173,10 @@ export class ApiService {
 
     if (accessToken) {
       headers.append('Authorization', `Bearer ${accessToken}`);
+    }
+
+    if (this.language) {
+      headers.append('Accept-Language', this.language);
     }
 
     headers.append('Accept', 'application/json');
