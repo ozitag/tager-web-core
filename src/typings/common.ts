@@ -11,11 +11,12 @@ export type ConstantMap<C extends string> = Readonly<Record<C, C>>;
 
 export type FetchStatus = 'IDLE' | 'LOADING' | 'SUCCESS' | 'FAILURE';
 
-export type ResourceType<T, Status = FetchStatus, E = string> = {
-  data: T;
+export interface ResourceType<DataType, Status = FetchStatus, ErrorType = unknown, MetaType = unknown> {
+  data: DataType;
   status: Status;
-  error: Nullable<E>;
-};
+  error: ErrorType;
+  meta: MetaType;
+}
 
 export type ResourceMapType<Key extends string | number, ResourceData> = Record<
   Key,
@@ -44,10 +45,20 @@ export type LaravelError = {
   }>;
 };
 
-export type ResponseBody<Data = any> = {
+export interface PaginationMeta {
+  page: {
+    number: number;
+    size: number;
+    count: number;
+  };
+  total: number;
+}
+
+export type ResponseBody<Data = any, M = any> = {
   data: Data;
   errors?: Record<string, ValidationError>;
   message?: string;
+  meta?: M;
 } & Partial<LaravelError>;
 
 /** Fields */

@@ -7,6 +7,7 @@ import {
   Nullable,
   FetchStatus,
   Nullish,
+  PaginationMeta,
 } from '../typings/common';
 
 /** https://github.com/zeit/next.js/issues/5354#issuecomment-520305040 */
@@ -154,15 +155,17 @@ export function getImageTypeFromUrl(url: string | null): string | null {
   return null;
 }
 
-export function createResource<DataType>(
+export function createResource<DataType, MetaType>(
   data: DataType,
   status: FetchStatus,
-  error?: Nullable<string>
+  error: Nullable<string>,
+  meta: MetaType
 ): ResourceType<DataType> {
   return {
     data,
     status,
-    error: error ?? null,
+    error: error,
+    meta,
   };
 }
 
@@ -175,8 +178,8 @@ export function createResourceLoader<DataType>(initialData: DataType) {
       const resourceData = data === undefined ? initialData : data;
       return createResource(resourceData, FETCH_STATUSES.LOADING);
     },
-    fulfill(payload: DataType): ResourceType<DataType> {
-      return createResource(payload, FETCH_STATUSES.SUCCESS);
+    fulfill(payload: DataType, meta?: PaginationMeta): ResourceType<DataType> {
+      return createResource(payload, FETCH_STATUSES.SUCCESS, null, meta);
     },
     reject(error?: Nullable<string>): ResourceType<DataType> {
       return createResource(initialData, FETCH_STATUSES.FAILURE, error ?? null);
