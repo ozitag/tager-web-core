@@ -11,11 +11,34 @@ export type ConstantMap<C extends string> = Readonly<Record<C, C>>;
 
 export type FetchStatus = 'IDLE' | 'LOADING' | 'SUCCESS' | 'FAILURE';
 
-export interface ResourceType<DataType, Status = FetchStatus, ErrorType = unknown, MetaType = unknown> {
+export interface BaseResourceType {
+  data: unknown;
+  status: string;
+  error: unknown;
+  meta: unknown;
+}
+
+export interface ResourceType<
+  DataType,
+  Status extends string = FetchStatus,
+  ErrorType = unknown,
+  MetaType = unknown
+> extends BaseResourceType {
   data: DataType;
   status: Status;
   error: ErrorType;
   meta: MetaType;
+}
+
+export interface PaginatedResourceType<
+  EntityType,
+  Status extends string = FetchStatus,
+  ErrorType = unknown
+> extends BaseResourceType {
+  data: Array<EntityType>;
+  status: Status;
+  error: ErrorType;
+  meta: Nullable<PaginationMeta>;
 }
 
 export type ResourceMapType<Key extends string | number, ResourceData> = Record<
@@ -29,9 +52,12 @@ export type MapEntry<K, V> = { key: K; value: V };
 
 export type PartialRecord<K extends keyof any, T> = Partial<Record<K, T>>;
 
-export type ValidationError = { code: string; message: string };
+export interface ValidationError {
+  code: string;
+  message: string;
+}
 
-export type LaravelError = {
+export interface LaravelError {
   message: string;
   exception: string;
   file: string;
@@ -43,7 +69,7 @@ export type LaravelError = {
     line: number;
     type: string;
   }>;
-};
+}
 
 export interface PaginationMeta {
   page: {
@@ -60,6 +86,19 @@ export type ResponseBody<Data = any, M = any> = {
   message?: string;
   meta?: M;
 } & Partial<LaravelError>;
+
+export interface DataResponseBody<D> {
+  data: D;
+}
+
+export interface PaginatedDataResponseBody<D> extends DataResponseBody<D> {
+  meta: PaginationMeta;
+}
+
+export interface ValidationResponseBody {
+  message: string;
+  errors?: { [key: string]: ValidationError };
+}
 
 /** Fields */
 

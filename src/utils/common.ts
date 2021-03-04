@@ -8,6 +8,7 @@ import {
   FetchStatus,
   Nullish,
   PaginationMeta,
+  PaginatedResourceType,
 } from '../typings/common';
 
 /** https://github.com/zeit/next.js/issues/5354#issuecomment-520305040 */
@@ -155,17 +156,16 @@ export function getImageTypeFromUrl(url: string | null): string | null {
   return null;
 }
 
-export function createResource<DataType, MetaType>(
+export function createResource<DataType>(
   data: DataType,
   status: FetchStatus,
-  error: Nullable<string>,
-  meta: MetaType
+  error?: Nullable<string>
 ): ResourceType<DataType> {
   return {
     data,
     status,
     error: error,
-    meta,
+    meta: null,
   };
 }
 
@@ -178,14 +178,65 @@ export function createResourceLoader<DataType>(initialData: DataType) {
       const resourceData = data === undefined ? initialData : data;
       return createResource(resourceData, FETCH_STATUSES.LOADING);
     },
-    fulfill(payload: DataType, meta?: PaginationMeta): ResourceType<DataType> {
-      return createResource(payload, FETCH_STATUSES.SUCCESS, null, meta);
+    fulfill(payload: DataType): ResourceType<DataType> {
+      return createResource(payload, FETCH_STATUSES.SUCCESS, null);
     },
     reject(error?: Nullable<string>): ResourceType<DataType> {
       return createResource(initialData, FETCH_STATUSES.FAILURE, error ?? null);
     },
     cancel(): ResourceType<DataType> {
       return createResource(initialData, FETCH_STATUSES.IDLE);
+    },
+  };
+}
+
+export function createPaginatedResourceLoader<EntityType, ErrorType = unknown>(
+  initialData: Array<EntityType> = []
+) {
+  return {
+    getInitialResource(): PaginatedResourceType<EntityType> {
+      return {
+        data: initialData,
+        status: FETCH_STATUSES.IDLE,
+        error: null,
+        meta: null,
+      };
+    },
+    pending(data?: Array<EntityType>): PaginatedResourceType<EntityType> {
+      const resourceData = data === undefined ? initialData : data;
+      return {
+        data: resourceData,
+        status: FETCH_STATUSES.LOADING,
+        error: null,
+        meta: null,
+      };
+    },
+    fulfill(
+      payload: Array<EntityType>,
+      meta: PaginationMeta
+    ): PaginatedResourceType<EntityType> {
+      return {
+        data: payload,
+        status: FETCH_STATUSES.SUCCESS,
+        error: null,
+        meta,
+      };
+    },
+    reject(error?: ErrorType): PaginatedResourceType<EntityType> {
+      return {
+        data: initialData,
+        status: FETCH_STATUSES.FAILURE,
+        error: error ?? null,
+        meta: null,
+      };
+    },
+    cancel(): PaginatedResourceType<EntityType> {
+      return {
+        data: initialData,
+        status: FETCH_STATUSES.IDLE,
+        error: null,
+        meta: null,
+      };
     },
   };
 }
