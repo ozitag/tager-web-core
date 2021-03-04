@@ -164,7 +164,7 @@ export function createResource<DataType>(
   return {
     data,
     status,
-    error: error,
+    error: error ?? null,
     meta: null,
   };
 }
@@ -179,10 +179,10 @@ export function createResourceLoader<DataType>(initialData: DataType) {
       return createResource(resourceData, FETCH_STATUSES.LOADING);
     },
     fulfill(payload: DataType): ResourceType<DataType> {
-      return createResource(payload, FETCH_STATUSES.SUCCESS, null);
+      return createResource(payload, FETCH_STATUSES.SUCCESS);
     },
     reject(error?: Nullable<string>): ResourceType<DataType> {
-      return createResource(initialData, FETCH_STATUSES.FAILURE, error ?? null);
+      return createResource(initialData, FETCH_STATUSES.FAILURE, error);
     },
     cancel(): ResourceType<DataType> {
       return createResource(initialData, FETCH_STATUSES.IDLE);
