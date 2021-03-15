@@ -1,5 +1,6 @@
 import { ServerResponse } from 'http';
 import round from 'lodash/round';
+import { v4 as uuid } from 'uuid';
 
 import { FETCH_STATUSES } from '../constants/common';
 import {
@@ -290,4 +291,8 @@ export function appendScriptCodeToBody(scriptCode: string): void {
   const script = document.createElement('script');
   script.text = scriptCode;
   document.body.appendChild(script);
+}
+
+export function createUuid() {
+  return uuid();
 }

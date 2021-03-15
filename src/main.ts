@@ -14,6 +14,7 @@ export { default as useScrollLock } from './hooks/useScrollLock';
 export * from './services/api';
 export * from './services/scroller';
 export { default as cookie } from './services/cookie';
+export { default as ShortCodeService } from './services/shortCode';
 export { default as RequestError } from './services/RequestError';
 export { default as share } from './services/share';
 
