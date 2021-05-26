@@ -1,6 +1,7 @@
 import { useIsomorphicLayoutEffect } from '../utils/react';
 
-function useFixedVhProperty() {
+
+function useFixedVhProperty(options?: { shouldListenResize?: boolean }) {
   useIsomorphicLayoutEffect(() => {
     function updateVhProperty() {
       requestAnimationFrame(() => {
@@ -15,8 +16,17 @@ function useFixedVhProperty() {
 
     window.addEventListener('orientationchange', updateVhProperty);
 
+    if (options?.shouldListenResize) {
+      window.addEventListener('resize', updateVhProperty);
+    }
+
     return () =>
-      window.removeEventListener('orientationchange', updateVhProperty);
+        window.removeEventListener('orientationchange', updateVhProperty);
+
+    if (options?.shouldListenResize) {
+      window.removeEventListener('resize', updateVhProperty);
+    }
+
   }, []);
 }
 
