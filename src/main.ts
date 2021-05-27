@@ -10,6 +10,7 @@ export { default as useSearchParams } from './hooks/useSearchParams';
 export { default as useUpdateEffect } from './hooks/useUpdateEffect';
 export { default as useProgressBar } from './hooks/useProgressBar';
 export { default as useScrollLock } from './hooks/useScrollLock';
+export { default as useScrollLockForRef } from './hooks/useScrollLockForRef';
 
 export * from './services/api';
 export * from './services/scroller';
