@@ -44,7 +44,11 @@ class ShortCodeService {
     const props: ShortCodeProps = {};
 
     propsMatches.forEach((propMatch) => {
-      const [propName, propValue] = propMatch.split('=');
+      const separator = '=';
+      const index = propMatch.indexOf(separator);
+      const propName = propMatch.slice(0, index);
+      const propValue = propMatch.slice(index + separator.length);
+
       // trim double quotes
       props[propName] = propValue.slice(1, -1);
     });
