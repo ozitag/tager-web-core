@@ -192,7 +192,7 @@ export class ApiService {
   private configureBody(body?: BodyParam) {
     if (!body) return undefined;
 
-    if (isBrowser() && body instanceof FormData) {
+    if (body instanceof IsomorphicFormData) {
       return body;
     }
 
