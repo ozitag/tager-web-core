@@ -6,6 +6,7 @@ import {
 } from '../typings/api';
 import {
   ConstantMap,
+  FormDataModel,
   Nullable,
   QueryParams,
   ResponseBody,
@@ -20,6 +21,10 @@ import { convertParamsToString } from '../utils/searchParams';
 
 import cookie from './cookie';
 import RequestError from './RequestError';
+
+const IsomorphicFormData = isBrowser()
+  ? FormData
+  : (require('form-data') as FormDataModel);
 
 export type OAuthTokenResponseBody = {
   tokenType: string;
@@ -164,7 +169,7 @@ export class ApiService {
   private configureHeaders(body?: BodyParam): Headers {
     const headers = new Headers();
 
-    const isFormData = isBrowser() && body instanceof FormData;
+    const isFormData = body instanceof IsomorphicFormData;
     if (!isFormData) {
       headers.append('Content-Type', 'application/json');
     }

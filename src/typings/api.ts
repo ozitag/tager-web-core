@@ -1,6 +1,6 @@
-import { QueryParams } from './common';
+import { FormDataModel, QueryParams } from './common';
 
-export type BodyParam = object | FormData;
+export type BodyParam = object | FormDataModel;
 
 export type JsonParseResult =
   | { [key: string]: any }
