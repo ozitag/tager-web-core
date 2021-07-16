@@ -113,7 +113,4 @@ export type MapFieldValueType = Nullable<{
   longitude: number;
 }>;
 
-export type FormDataModel = {
-  prototype: FormData;
-  new (form?: HTMLFormElement): FormData;
-};
+export type FormDataModel = typeof FormData;
