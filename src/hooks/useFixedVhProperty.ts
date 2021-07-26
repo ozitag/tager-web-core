@@ -1,6 +1,6 @@
 import { useIsomorphicLayoutEffect } from '../utils/react';
 
-function useFixedVhProperty(options?: { shouldListenResize?: boolean }) {
+function useFixedVhProperty(options?: { shouldListenResize?: boolean }): void {
   useIsomorphicLayoutEffect(() => {
     function updateVhProperty() {
       requestAnimationFrame(() => {

@@ -1,10 +1,13 @@
 {
   "include": ["src", "types"],
   "compilerOptions": {
+    "target": "ES2015",
     "module": "esnext",
     "lib": ["dom", "esnext"],
     "importHelpers": true,
     "declaration": true,
+    "declarationDir": "dist",
+    "skipLibCheck": true,
     "sourceMap": true,
     "rootDir": "./src",
     "strict": true,
@@ -12,6 +15,10 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitThis": true,
+    "noPropertyAccessFromIndexSignature": true,
     "moduleResolution": "node",
     "jsx": "react",
     "esModuleInterop": true

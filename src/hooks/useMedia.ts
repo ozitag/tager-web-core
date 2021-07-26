@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useIsomorphicLayoutEffect } from '../utils/react';
 
 /** Source: https://github.com/streamich/react-use/blob/master/src/useMedia.ts */
-function useMedia(query: string, defaultState: boolean = false) {
+function useMedia(query: string, defaultState = false): boolean {
   const [state, setState] = useState(defaultState);
 
   useIsomorphicLayoutEffect(() => {
