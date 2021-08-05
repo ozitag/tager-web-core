@@ -9,7 +9,7 @@ export type ScrollLockEvent = {
 };
 
 class Scroller {
-  private listeners: Array<Function>;
+  private listeners: Array<(event: ScrollLockEvent) => void>;
   public isLocked: boolean;
   private scrollbarWidthBeforeLock: number;
 
@@ -53,7 +53,7 @@ class Scroller {
   }
 
   private notifyListeners() {
-    const event = {
+    const event: ScrollLockEvent = {
       isLocked: this.isLocked,
       scrollbarWidthBeforeLock: this.scrollbarWidthBeforeLock,
       currentScrollbarWidth: this.getCurrentScrollbarWidth(),

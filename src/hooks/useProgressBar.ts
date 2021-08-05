@@ -3,7 +3,7 @@ import NProgress, { NProgressOptions } from 'nprogress';
 import { Nullable } from '../typings/common';
 import { Router } from 'next/router';
 
-function useProgressBar(options: Partial<NProgressOptions>) {
+function useProgressBar(options: Partial<NProgressOptions>): void {
   useEffect(() => {
     const defaultOptions: Partial<NProgressOptions> = { showSpinner: false };
 
@@ -35,7 +35,6 @@ function useProgressBar(options: Partial<NProgressOptions>) {
       resetTimeoutIfNeeded();
       NProgress.done();
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
 

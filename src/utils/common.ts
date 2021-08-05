@@ -1,5 +1,5 @@
 import { ServerResponse } from 'http';
-import round from 'lodash/round';
+import round from 'lodash-es/round';
 import { v4 as uuid } from 'uuid';
 
 import { FETCH_STATUSES } from '../constants/common';
@@ -25,7 +25,7 @@ export function isServer(): boolean {
  * Reference:
  * https://github.com/reach/reach-ui/blob/v0.10.4/packages/utils/src/index.tsx#L159-L165
  */
-export function canUseDOM() {
+export function canUseDOM(): boolean {
   return (
     typeof window !== 'undefined' &&
     typeof window.document !== 'undefined' &&
@@ -89,11 +89,15 @@ export function isStringGuard(value: any): value is string {
   return typeof value === 'string';
 }
 
-export function isObjectGuard(value: any): value is object | null {
+export function isObjectGuard(
+  value: any
+): value is { [key: string]: unknown } | null {
   return typeof value === 'object';
 }
 
-export function isNonNullObjectGuard(value: any): value is object {
+export function isNonNullObjectGuard(
+  value: any
+): value is { [key: string]: unknown } {
   return isObjectGuard(value) && Boolean(value);
 }
 
@@ -124,7 +128,8 @@ export function convertSrcSet(sources: Array<string>): string {
 }
 
 /** Source: https://github.com/killmenot/valid-data-url/blob/master/index.js#L24 */
-const DATA_URL_REGEX = /^data:([a-z]+\/[a-z0-9-+.]+(;[a-z0-9-.!#$%*+.{}|~`]+=[a-z0-9-.!#$%*+.{}|~`]+)*)?(;base64)?,([a-z0-9!$&',()*+;=\-._~:@/?%\s]*?)$/i;
+const DATA_URL_REGEX =
+  /^data:([a-z]+\/[a-z0-9-+.]+(;[a-z0-9-.!#$%*+.{}|~`]+=[a-z0-9-.!#$%*+.{}|~`]+)*)?(;base64)?,([a-z0-9!$&',()*+;=\-._~:@/?%\s]*?)$/i;
 
 export function getImageTypeFromUrl(url: string | null): string | null {
   if (!url) return null;
@@ -133,7 +138,7 @@ export function getImageTypeFromUrl(url: string | null): string | null {
 
   if (isValidDataUrl) {
     const parts = url.trim().match(DATA_URL_REGEX);
-    return parts ? parts[1] : null;
+    return parts ? parts[1] ?? null : null;
   }
 
   const dotPositionIndex = url.lastIndexOf('.');

@@ -12,7 +12,7 @@ import React, { useEffect, useRef } from 'react';
 function useUpdateEffect(
   effect: React.EffectCallback,
   deps?: React.DependencyList
-) {
+): void {
   const mounted = useRef(false);
   useEffect(() => {
     if (mounted.current) {
@@ -20,7 +20,6 @@ function useUpdateEffect(
     } else {
       mounted.current = true;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }
 

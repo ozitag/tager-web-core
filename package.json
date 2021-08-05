@@ -1,12 +1,11 @@
 {
   "name": "@tager/web-core",
-  "version": "0.3.17",
+  "version": "0.3.18",
   "author": "Ivan Saranchonkau",
   "license": "MIT",
   "main": "dist/index.js",
-  "umd:main": "dist/web-core.umd.production.js",
   "module": "dist/web-core.esm.js",
-  "typings": "dist/main.d.ts",
+  "types": "dist/main.d.ts",
   "files": [
     "dist",
     "src"
@@ -15,58 +14,61 @@
     "node": ">=12"
   },
   "scripts": {
-    "start": "tsdx watch",
-    "build": "cross-env NODE_ENV=production tsdx build --format=cjs,esm --entry ./src/main.ts",
-    "test": "tsdx test",
-    "lint": "tsdx lint --fix --report-file report.json",
-    "prebuild": "rimraf dist",
-    "prepare": "yarn build"
+    "emit-declarations": "tsc --project tsconfig.json --emitDeclarationOnly",
+    "build": "rollup -c rollup.config.js",
+    "prepare": "yarn build && yarn emit-declarations"
   },
   "dependencies": {
     "cookie": "^0.4.1",
     "form-data": "^4.0.0",
-    "js-cookie": "^3.0.0-rc.1",
-    "lodash": "^4.17.20",
-    "lodash-es": "^4.17.15",
+    "js-cookie": "3.0.0-rc.4",
+    "lodash-es": "^4.17.21",
     "nprogress": "^0.2.0",
-    "tua-body-scroll-lock": "^1.2.0",
-    "typed-contracts": "^2.3.0",
+    "tua-body-scroll-lock": "^1.2.1",
+    "typed-contracts": "^3.0.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "15.1.0",
-    "@types/js-cookie": "^2.2.6",
-    "@types/lodash": "^4.14.163",
+    "@rollup/plugin-node-resolve": "^13.0.4",
+    "@types/js-cookie": "^2.2.7",
+    "@types/lodash-es": "^4.17.4",
     "@types/node": "12.x",
     "@types/nprogress": "^0.2.0",
-    "@types/react": "^16.9.55",
-    "@types/react-dom": "^16.9.9",
-    "@types/uuid": "^8.3.0",
-    "babel-jest": "^26.6.0",
-    "cross-env": "^7.0.2",
-    "husky": "^4.3.0",
-    "next": "^10.0.0",
-    "react": "^17.0.1",
-    "rimraf": "^3.0.2",
-    "tsdx": "^0.14.1",
-    "tslib": "^2.0.3",
-    "typescript": "^4.0.5"
+    "@types/react": "^17.0.15",
+    "@types/react-dom": "^17.0.9",
+    "@types/uuid": "^8.3.1",
+    "@typescript-eslint/eslint-plugin": "^4.28.4",
+    "@typescript-eslint/parser": "^4.28.4",
+    "babel-jest": "^27.0.6",
+    "cross-env": "^7.0.3",
+    "esbuild": "^0.12.16",
+    "eslint": "^7.31.0",
+    "eslint-config-prettier": "^8.3.0",
+    "fs-extra": "^10.0.0",
+    "husky": "^7.0.1",
+    "lint-staged": "^11.1.1",
+    "next": "^11.0.1",
+    "prettier": "^2.3.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "rollup": "^2.54.0",
+    "rollup-plugin-esbuild": "^4.5.0",
+    "tslib": "^2.3.0",
+    "typescript": "^4.3.5"
   },
   "peerDependencies": {
-    "next": "^10.0.0",
-    "react": "^17.0.1"
+    "next": "^11.0.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsdx lint --fix",
-      "post-commit": "git update-index --again"
-    }
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "prettier": {
     "singleQuote": true
-  },
-  "resolutions": {
-    "prettier": "^2.x"
   },
   "publishConfig": {
     "access": "public"

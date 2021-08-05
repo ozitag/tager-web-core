@@ -22,12 +22,14 @@ class ShortCodeService {
       return new RegExp(`\\[${this.name}\\]`, 'gi');
     }
 
-    const propsRegexPartItems = this.propNames
-        .map((propName) => `(?<${propName}>${propName}=".*?")`);
+    const propsRegexPartItems = this.propNames.map(
+      (propName) => `(?<${propName}>${propName}=".*?")`
+    );
 
-    let propsRegexPart = "";
+    let propsRegexPart = '';
     propsRegexPartItems.forEach((propsRegexPartItem, ind) => {
-      propsRegexPart += '(\\s' + (ind === 0 ? '*' : '') +propsRegexPartItem + ')*';
+      propsRegexPart +=
+        '(\\s' + (ind === 0 ? '*' : '') + propsRegexPartItem + ')*';
     });
 
     return new RegExp(`\\[${this.name}\\s(?<props>${propsRegexPart})\\]`, 'gi');

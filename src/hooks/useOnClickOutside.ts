@@ -13,7 +13,7 @@ function useOnClickOutside(
     | null,
   handler: (event: Event) => void,
   type?: 'custom'
-) {
+): void {
   useEffect(() => {
     function listener(this: Document, event: Event) {
       if (type === 'custom') {

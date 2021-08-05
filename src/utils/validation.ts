@@ -5,13 +5,14 @@ import RequestError from '../services/RequestError';
  * Reference - The regex used in input with type="email" from W3C HTML Living Standard:
  * https://html.spec.whatwg.org/multipage/input.html#e-mail-state-(type=email)
  */
-export const EMAIL_REGEXP = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+export const EMAIL_REGEXP =
+  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
 export const validators = {
-  required(value: string) {
+  required(value: string): boolean {
     return !value.trim();
   },
-  email(value: string) {
+  email(value: string): boolean {
     return !EMAIL_REGEXP.test(value);
   },
 };
@@ -38,7 +39,7 @@ export function convertRequestErrorToMap(error: Error): Record<string, string> {
       return Object.keys(validationResult.errors).reduce<
         Record<string, string>
       >((result, key) => {
-        result[key] = validationResult.errors[key].message;
+        result[key] = validationResult.errors[key]?.message || '';
         return result;
       }, {});
     }

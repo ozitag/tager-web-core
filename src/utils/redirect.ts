@@ -13,7 +13,7 @@ export function redirect(params: {
   location: string;
   res?: ServerResponse;
   withQuery?: boolean;
-}) {
+}): void {
   const destinationLocation = params.withQuery
     ? [params.location, getSearchParamsFromUrl(params.currentUrl).toString()]
         .filter(Boolean)
