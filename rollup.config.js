@@ -10,7 +10,7 @@ const resolveApp = function (relativePath) {
 };
 
 const distName = 'dist';
-const distPath = resolveApp('dist');
+const distPath = resolveApp(distName);
 
 const packageName = 'web-core';
 

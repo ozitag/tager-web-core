@@ -1,12 +1,11 @@
 {
   "name": "@tager/web-core",
-  "version": "0.3.18-beta.1",
+  "version": "0.3.18",
   "author": "Ivan Saranchonkau",
   "license": "MIT",
   "main": "dist/index.js",
-  "umd:main": "dist/web-core.umd.production.js",
   "module": "dist/web-core.esm.js",
-  "typings": "dist/main.d.ts",
+  "types": "dist/main.d.ts",
   "files": [
     "dist",
     "src"
@@ -15,12 +14,9 @@
     "node": ">=12"
   },
   "scripts": {
-    "start": "tsdx watch",
     "emit-declarations": "tsc --project tsconfig.json --emitDeclarationOnly",
-    "build": "rollup -c rollup.config.js && yarn emit-declarations",
-    "test": "tsdx test",
-    "lint": "tsdx lint --fix --report-file report.json",
-    "prepare": "yarn build"
+    "build": "rollup -c rollup.config.js",
+    "prepare": "yarn build && yarn emit-declarations"
   },
   "dependencies": {
     "cookie": "^0.4.1",
