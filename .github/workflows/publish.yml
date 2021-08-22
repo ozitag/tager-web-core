@@ -17,7 +17,7 @@ jobs:
       - name: install dependecies
         run: yarn
       - name: publish
-        run: npm publish --access public
+        run: yarn build-package && npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: create and push tag

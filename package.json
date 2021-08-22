@@ -1,6 +1,6 @@
 {
   "name": "@tager/web-core",
-  "version": "0.3.18",
+  "version": "0.3.19",
   "author": "Ivan Saranchonkau",
   "license": "MIT",
   "main": "dist/index.js",
@@ -15,8 +15,9 @@
   },
   "scripts": {
     "emit-declarations": "tsc --project tsconfig.json --emitDeclarationOnly",
-    "build": "rollup -c rollup.config.js",
-    "prepare": "yarn build && yarn emit-declarations"
+    "build-js": "rollup -c rollup.config.js",
+    "build-package": "yarn build-js && yarn emit-declarations",
+    "prepare": "husky install"
   },
   "dependencies": {
     "cookie": "^0.4.1",
