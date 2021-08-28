@@ -19,6 +19,8 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitThis": true,
     "noPropertyAccessFromIndexSignature": true,
+    "exactOptionalPropertyTypes": true,
+    "useUnknownInCatchVariables": true,
     "moduleResolution": "node",
     "jsx": "react",
     "esModuleInterop": true

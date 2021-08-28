@@ -3,23 +3,38 @@ import path from 'path';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import * as fs from 'fs-extra';
 
-const external = (id) => !id.startsWith('.') && !path.isAbsolute(id);
+function external(id) {
+  return !id.startsWith('.') && !path.isAbsolute(id);
+}
 
-const resolveApp = function (relativePath) {
+function resolveApp(relativePath) {
   return path.resolve(relativePath);
-};
+}
 
-const distName = 'dist';
-const distPath = resolveApp(distName);
-
+const distPath = resolveApp('dist');
 const packageName = 'web-core';
 
 async function cleanDistFolder() {
   await fs.remove(distPath);
 }
 
+function resolveOutputPath(outputName) {
+  return path.join(distPath, outputName);
+}
+
+/**
+ * @typedef BuildOptions
+ * @property {string} format
+ * @property {string} [env]
+ * @property {boolean} [minify]
+ */
+
+/**
+ * @param {BuildOptions} options
+ * @returns {string} outputName
+ */
 function getOutputName(options) {
-  const fileName = [
+  return [
     packageName,
     options.format,
     options.env,
@@ -28,42 +43,57 @@ function getOutputName(options) {
   ]
     .filter(Boolean)
     .join('.');
-
-  if (options.absolute) {
-    return path.join(distPath, fileName);
-  }
-
-  return fileName;
 }
 
-const cjsProdFileName = getOutputName({
-  format: 'cjs',
-  env: 'production',
-  minify: true,
-});
-const cjsDevFileName = getOutputName({ format: 'cjs', env: 'development' });
+/**
+ * @param {BuildOptions} options
+ * @returns {string} outputPath
+ */
+function getOutputPath(options) {
+  return resolveOutputPath(getOutputName(options));
+}
+
+/**
+ * @type {BuildOptions}
+ */
+const CJS_DEV_CONFIG = { format: 'cjs', env: 'development' };
+
+/**
+ * @type {BuildOptions}
+ */
+const CJS_PROD_CONFIG = { format: 'cjs', env: 'production', minify: true };
+
+/**
+ * @type {BuildOptions}
+ */
+const ESM_CONFIG = { format: 'esm' };
 
 function writeCjsEntryFile() {
   const contents = `'use strict'
 if (process.env.NODE_ENV === 'production') {
-  module.exports = require('./${cjsProdFileName}')
+  module.exports = require('./${getOutputName(CJS_PROD_CONFIG)}')
 } else {
-  module.exports = require('./${cjsDevFileName}')
+  module.exports = require('./${getOutputName(CJS_DEV_CONFIG)}')
 }
 `;
-  return fs.outputFile(path.join(distPath, 'index.js'), contents);
+  return fs.outputFile(resolveOutputPath('index.js'), contents);
 }
 
+/**
+ * @param {BuildOptions} options
+ * @returns {object} config
+ */
 function createRollupConfig(options) {
-  const minify = options.env === 'production' && options.format !== 'esm';
-
   return {
     input: 'src/main.ts',
     output: {
-      file: getOutputName({ ...options, minify, absolute: true }),
+      file: getOutputPath(options),
       format: options.format,
     },
-    plugins: [nodeResolve(), esbuild({ minify })],
+    plugins: [
+      nodeResolve(),
+      esbuild({ minify: options.minify, target: 'es2015', tsconfig: false }),
+    ],
     external: (id) => {
       if (['js-cookie', 'lodash-es/round'].includes(id)) {
         return false;
@@ -79,8 +109,8 @@ export default async function () {
   await writeCjsEntryFile();
 
   return [
-    createRollupConfig({ format: 'cjs', env: 'development' }),
-    createRollupConfig({ format: 'cjs', env: 'production' }),
-    createRollupConfig({ format: 'esm' }),
+    createRollupConfig(CJS_DEV_CONFIG),
+    createRollupConfig(CJS_PROD_CONFIG),
+    createRollupConfig(ESM_CONFIG),
   ];
 }

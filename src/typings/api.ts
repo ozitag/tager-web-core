@@ -17,7 +17,7 @@ export type RequestOptions = {
   body?: BodyParam;
   params?: QueryParams;
   absoluteUrl?: string;
-  fetchOptions?: RequestInit;
+  fetchOptions?: RequestInit | undefined;
   method: HttpMethod;
 };
 

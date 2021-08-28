@@ -190,7 +190,7 @@ export class ApiService {
   }
 
   private configureBody(body?: BodyParam) {
-    if (!body) return undefined;
+    if (!body) return null;
 
     if (body instanceof IsomorphicFormData) {
       return body;
@@ -212,8 +212,8 @@ export class ApiService {
     fetchOptions,
   }: {
     method: HttpMethod;
-    body?: BodyParam;
-    fetchOptions?: RequestInit;
+    body?: BodyParam | undefined;
+    fetchOptions?: RequestInit | undefined;
   }): RequestInit {
     return {
       headers: this.configureHeaders(body),
