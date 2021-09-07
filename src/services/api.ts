@@ -125,10 +125,14 @@ export class ApiService {
   }
 
   /** Set access token on server side */
-  public setAccessToken(accessToken: Nullable<string>) {
+  public setAccessToken(accessToken: Nullable<string>, remember = true) {
     if (isBrowser()) {
       if (accessToken !== null) {
-        cookie.set(ACCESS_TOKEN_COOKIE, accessToken);
+        if(remember){
+          cookie.set(ACCESS_TOKEN_COOKIE, accessToken, undefined, 365);
+        } else{
+          cookie.set(ACCESS_TOKEN_COOKIE, accessToken);
+        }
       } else {
         cookie.remove(ACCESS_TOKEN_COOKIE);
       }
@@ -138,10 +142,14 @@ export class ApiService {
   }
 
   /** Set refresh token on server side */
-  public setRefreshToken(refreshToken: Nullable<string>) {
+  public setRefreshToken(refreshToken: Nullable<string>, remember = true) {
     if (isBrowser()) {
       if (refreshToken !== null) {
-        cookie.set(REFRESH_TOKEN_COOKIE, refreshToken);
+        if(remember){
+          cookie.set(REFRESH_TOKEN_COOKIE, refreshToken, undefined, 365);
+        } else{
+          cookie.set(REFRESH_TOKEN_COOKIE, refreshToken);
+        }
       } else {
         cookie.remove(REFRESH_TOKEN_COOKIE);
       }
