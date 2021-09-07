@@ -50,6 +50,8 @@ type ApiBaseUrl = { ssr: string | undefined; csr: string | undefined } | string;
 type ApiConfigType = {
   useRefreshToken?: boolean;
   baseUrl?: ApiBaseUrl;
+  accessTokenCookieName?: string;
+  refreshTokenCookieName?: string;
 };
 
 type ApiResponseMiddlewareOptionsType = { startTime: number };
@@ -66,12 +68,16 @@ const DEFAULT_CONFIG: ApiConfigType = {
     csr: process.env.NEXT_PUBLIC_CSR_API_URL,
     ssr: process.env.NEXT_PUBLIC_SSR_API_URL,
   },
+  accessTokenCookieName: ACCESS_TOKEN_COOKIE,
+  refreshTokenCookieName: REFRESH_TOKEN_COOKIE,
 };
 
 export class ApiService {
   /** Server side only */
   private accessToken: Nullable<string>;
   private refreshToken: Nullable<string>;
+  private readonly accessTokenCookieName: string|undefined;
+  private readonly refreshTokenCookieName: string|undefined;
 
   private refreshRequest: Nullable<Promise<boolean>>;
   private unauthorizedErrorHandler: Nullable<() => void>;
@@ -89,6 +95,9 @@ export class ApiService {
     this.config = config || DEFAULT_CONFIG;
 
     this.language = process.env.NEXT_PUBLIC_LANGUAGE ?? null;
+
+    this.accessTokenCookieName = this.config.accessTokenCookieName ?? DEFAULT_CONFIG.accessTokenCookieName;
+    this.refreshTokenCookieName = this.config.refreshTokenCookieName ?? DEFAULT_CONFIG.refreshTokenCookieName;
   }
 
   public setConfig(config: ApiConfigType): void {
@@ -126,15 +135,16 @@ export class ApiService {
 
   /** Set access token on server side */
   public setAccessToken(accessToken: Nullable<string>, remember = true) {
+    if(!this.accessTokenCookieName) return;
     if (isBrowser()) {
       if (accessToken !== null) {
         if(remember){
-          cookie.set(ACCESS_TOKEN_COOKIE, accessToken, undefined, 365);
+          cookie.set(this.accessTokenCookieName, accessToken, undefined, 365);
         } else{
-          cookie.set(ACCESS_TOKEN_COOKIE, accessToken);
+          cookie.set(this.accessTokenCookieName, accessToken);
         }
       } else {
-        cookie.remove(ACCESS_TOKEN_COOKIE);
+        cookie.remove(this.accessTokenCookieName);
       }
     } else {
       this.accessToken = accessToken;
@@ -143,15 +153,16 @@ export class ApiService {
 
   /** Set refresh token on server side */
   public setRefreshToken(refreshToken: Nullable<string>, remember = true) {
+    if(!this.refreshTokenCookieName) return;
     if (isBrowser()) {
       if (refreshToken !== null) {
         if(remember){
-          cookie.set(REFRESH_TOKEN_COOKIE, refreshToken, undefined, 365);
+          cookie.set(this.refreshTokenCookieName, refreshToken, undefined, 365);
         } else{
-          cookie.set(REFRESH_TOKEN_COOKIE, refreshToken);
+          cookie.set(this.refreshTokenCookieName, refreshToken);
         }
       } else {
-        cookie.remove(REFRESH_TOKEN_COOKIE);
+        cookie.remove(this.refreshTokenCookieName);
       }
     } else {
       this.refreshToken = refreshToken;
@@ -159,16 +170,18 @@ export class ApiService {
   }
 
   public getAccessToken(): Nullable<string> {
+    if(!this.accessTokenCookieName) return null;
     if (isBrowser()) {
-      return cookie.get(ACCESS_TOKEN_COOKIE);
+      return cookie.get(this.accessTokenCookieName);
     } else {
       return this.accessToken;
     }
   }
 
   public getRefreshToken(): Nullable<string> {
+    if(!this.refreshTokenCookieName) return null
     if (isBrowser()) {
-      return cookie.get(REFRESH_TOKEN_COOKIE);
+      return cookie.get(this.refreshTokenCookieName);
     } else {
       return this.refreshToken;
     }
