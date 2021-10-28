@@ -33,7 +33,7 @@
     "@rollup/plugin-node-resolve": "^13.0.4",
     "@types/js-cookie": "^2.2.7",
     "@types/lodash-es": "^4.17.4",
-    "@types/node": "12.x",
+    "@types/node": "16.x",
     "@types/nprogress": "^0.2.0",
     "@types/react": "^17.0.19",
     "@types/react-dom": "^17.0.9",
