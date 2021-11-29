@@ -1,5 +1,5 @@
 import { ServerResponse } from 'http';
-import round from 'lodash-es/round';
+import {round} from 'lodash-es';
 import { v4 as uuid } from 'uuid';
 
 import { FETCH_STATUSES } from '../constants/common';
