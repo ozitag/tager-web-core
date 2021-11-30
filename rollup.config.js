@@ -1,6 +1,8 @@
 import esbuild from 'rollup-plugin-esbuild';
 import path from 'path';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
+import alias from '@rollup/plugin-alias';
+import commonjs from '@rollup/plugin-commonjs';
 import * as fs from 'fs-extra';
 
 function external(id) {
@@ -91,11 +93,19 @@ function createRollupConfig(options) {
       format: options.format,
     },
     plugins: [
+      options.format === 'esm'
+        ? alias({
+            entries: {
+              lodash: 'lodash-es',
+            },
+          })
+        : null,
       nodeResolve(),
+      options.format === 'cjs' ? commonjs() : null,
       esbuild({ minify: options.minify, target: 'es2015', tsconfig: false }),
-    ],
+    ].filter(Boolean),
     external: (id) => {
-      if (['js-cookie', 'lodash-es/round'].includes(id)) {
+      if (['js-cookie'].includes(id)) {
         return false;
       }
 
