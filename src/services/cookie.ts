@@ -31,7 +31,7 @@ function updateCookie(
     field: string,
     value: string,
     res?: ServerResponse,
-    expiresInDays?: 365
+    expiresInDays?: number
 ): void {
     if (isBrowser()) {
         Cookies.set(field, value, {path: '/', expires: expiresInDays});
