@@ -9,7 +9,7 @@ import {
   FetchStatus,
   Nullish,
   PaginationMeta,
-  PaginatedResourceType,
+  PaginatedResourceType
 } from '../typings/common';
 
 /** https://github.com/zeit/next.js/issues/5354#issuecomment-520305040 */
@@ -53,7 +53,7 @@ export function isomorphicLog(message: any): void {
   } else {
     log(
       require('util').inspect(message, {
-        colors: true,
+        colors: true
       })
     );
   }
@@ -62,6 +62,7 @@ export function isomorphicLog(message: any): void {
 export function getNumberSign(value: number): string {
   return value === 0 ? '' : value > 0 ? '+' : '-';
 }
+
 /** 12345678 => "12 345 678" */
 export function formatNumber(
   value: number,
@@ -171,7 +172,7 @@ export function createResource<DataType>(
     data,
     status,
     error: error ?? null,
-    meta: null,
+    meta: null
   };
 }
 
@@ -192,7 +193,7 @@ export function createResourceLoader<DataType>(initialData: DataType) {
     },
     cancel(): ResourceType<DataType> {
       return createResource(initialData, FETCH_STATUSES.IDLE);
-    },
+    }
   };
 }
 
@@ -205,7 +206,7 @@ export function createPaginatedResourceLoader<EntityType, ErrorType = unknown>(
         data: initialData,
         status: FETCH_STATUSES.IDLE,
         error: null,
-        meta: null,
+        meta: null
       };
     },
     pending(data?: Array<EntityType>): PaginatedResourceType<EntityType> {
@@ -214,7 +215,7 @@ export function createPaginatedResourceLoader<EntityType, ErrorType = unknown>(
         data: resourceData,
         status: FETCH_STATUSES.LOADING,
         error: null,
-        meta: null,
+        meta: null
       };
     },
     fulfill(
@@ -225,7 +226,7 @@ export function createPaginatedResourceLoader<EntityType, ErrorType = unknown>(
         data: payload,
         status: FETCH_STATUSES.SUCCESS,
         error: null,
-        meta,
+        meta
       };
     },
     reject(error?: ErrorType): PaginatedResourceType<EntityType> {
@@ -233,7 +234,7 @@ export function createPaginatedResourceLoader<EntityType, ErrorType = unknown>(
         data: initialData,
         status: FETCH_STATUSES.FAILURE,
         error: error ?? null,
-        meta: null,
+        meta: null
       };
     },
     cancel(): PaginatedResourceType<EntityType> {
@@ -241,9 +242,9 @@ export function createPaginatedResourceLoader<EntityType, ErrorType = unknown>(
         data: initialData,
         status: FETCH_STATUSES.IDLE,
         error: null,
-        meta: null,
+        meta: null
       };
-    },
+    }
   };
 }
 
@@ -261,7 +262,11 @@ export function getOrigin(): string {
  * Protocols: https://url.spec.whatwg.org/#url-miscellaneous
  */
 export function isAbsoluteUrl(url: string): boolean {
-  const PROTOCOL_LIST = ['ftp', 'file', 'http', 'https', 'ws', 'wss'];
+  const PROTOCOL_LIST = [
+    'ftp', 'file', 'http', 'https', 'ws', 'wss',
+    'tel', 'mailto', 'sms', 'callto', 'mms', 'skype',
+    'javascript', 'data', 'chrome'
+  ];
   return PROTOCOL_LIST.some((protocol) => url.startsWith(protocol + ':'));
 }
 
