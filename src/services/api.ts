@@ -2,20 +2,20 @@ import {
   BodyParam,
   HttpMethod,
   HttpRequestFunction,
-  RequestOptions,
+  RequestOptions
 } from '../typings/api';
 import {
   ConstantMap,
   FormDataModel,
   Nullable,
   QueryParams,
-  ResponseBody,
+  ResponseBody
 } from '../typings/common';
 import {
   isBrowser,
   isomorphicLog,
   isNotNullish,
-  isNonNullObjectGuard,
+  isNonNullObjectGuard
 } from '../utils/common';
 import { convertParamsToString } from '../utils/searchParams';
 
@@ -39,7 +39,7 @@ const HTTP_METHODS: ConstantMap<HttpMethod> = {
   POST: 'POST',
   PUT: 'PUT',
   DELETE: 'DELETE',
-  PATCH: 'PATCH',
+  PATCH: 'PATCH'
 };
 
 export const ACCESS_TOKEN_COOKIE = 'accessToken';
@@ -52,6 +52,7 @@ type ApiConfigType = {
   baseUrl?: ApiBaseUrl;
   accessTokenCookieName?: string;
   refreshTokenCookieName?: string;
+  cookieDomain?: string;
 };
 
 type ApiResponseMiddlewareOptionsType = { startTime: number };
@@ -66,24 +67,26 @@ const DEFAULT_CONFIG: ApiConfigType = {
   useRefreshToken: false,
   baseUrl: {
     csr: process.env.NEXT_PUBLIC_CSR_API_URL,
-    ssr: process.env.NEXT_PUBLIC_SSR_API_URL,
+    ssr: process.env.NEXT_PUBLIC_SSR_API_URL
   },
   accessTokenCookieName: ACCESS_TOKEN_COOKIE,
-  refreshTokenCookieName: REFRESH_TOKEN_COOKIE,
+  refreshTokenCookieName: REFRESH_TOKEN_COOKIE
 };
 
 export class ApiService {
   /** Server side only */
   private accessToken: Nullable<string>;
   private refreshToken: Nullable<string>;
-  private readonly accessTokenCookieName: string|undefined;
-  private readonly refreshTokenCookieName: string|undefined;
+  private readonly accessTokenCookieName: string | undefined;
+  private readonly refreshTokenCookieName: string | undefined;
 
   private refreshRequest: Nullable<Promise<boolean>>;
   private unauthorizedErrorHandler: Nullable<() => void>;
   private config: ApiConfigType;
 
   private language: Nullable<string>;
+
+  private cookieDomain: string | undefined;
 
   constructor(config?: ApiConfigType) {
     /** Server side only */
@@ -98,6 +101,8 @@ export class ApiService {
 
     this.accessTokenCookieName = this.config.accessTokenCookieName ?? DEFAULT_CONFIG.accessTokenCookieName;
     this.refreshTokenCookieName = this.config.refreshTokenCookieName ?? DEFAULT_CONFIG.refreshTokenCookieName;
+
+    this.cookieDomain = this.config.cookieDomain;
   }
 
   public setConfig(config: ApiConfigType): void {
@@ -135,16 +140,16 @@ export class ApiService {
 
   /** Set access token on server side */
   public setAccessToken(accessToken: Nullable<string>, remember = true) {
-    if(!this.accessTokenCookieName) return;
+    if (!this.accessTokenCookieName) return;
     if (isBrowser()) {
       if (accessToken !== null) {
-        if(remember){
-          cookie.set(this.accessTokenCookieName, accessToken, undefined, 365);
-        } else{
-          cookie.set(this.accessTokenCookieName, accessToken);
+        if (remember) {
+          cookie.set(this.accessTokenCookieName, accessToken, undefined, 365, this.cookieDomain);
+        } else {
+          cookie.set(this.accessTokenCookieName, accessToken, undefined, undefined, this.cookieDomain);
         }
       } else {
-        cookie.remove(this.accessTokenCookieName);
+        cookie.remove(this.accessTokenCookieName, undefined, this.cookieDomain);
       }
     } else {
       this.accessToken = accessToken;
@@ -153,16 +158,16 @@ export class ApiService {
 
   /** Set refresh token on server side */
   public setRefreshToken(refreshToken: Nullable<string>, remember = true) {
-    if(!this.refreshTokenCookieName) return;
+    if (!this.refreshTokenCookieName) return;
     if (isBrowser()) {
       if (refreshToken !== null) {
-        if(remember){
-          cookie.set(this.refreshTokenCookieName, refreshToken, undefined, 365);
-        } else{
-          cookie.set(this.refreshTokenCookieName, refreshToken);
+        if (remember) {
+          cookie.set(this.refreshTokenCookieName, refreshToken, undefined, 365, this.cookieDomain);
+        } else {
+          cookie.set(this.refreshTokenCookieName, refreshToken, undefined, undefined, this.cookieDomain);
         }
       } else {
-        cookie.remove(this.refreshTokenCookieName);
+        cookie.remove(this.refreshTokenCookieName, undefined, this.cookieDomain);
       }
     } else {
       this.refreshToken = refreshToken;
@@ -170,7 +175,7 @@ export class ApiService {
   }
 
   public getAccessToken(): Nullable<string> {
-    if(!this.accessTokenCookieName) return null;
+    if (!this.accessTokenCookieName) return null;
     if (isBrowser()) {
       return cookie.get(this.accessTokenCookieName);
     } else {
@@ -179,7 +184,7 @@ export class ApiService {
   }
 
   public getRefreshToken(): Nullable<string> {
-    if(!this.refreshTokenCookieName) return null
+    if (!this.refreshTokenCookieName) return null;
     if (isBrowser()) {
       return cookie.get(this.refreshTokenCookieName);
     } else {
@@ -228,10 +233,10 @@ export class ApiService {
   }
 
   configureOptions({
-    method,
-    body,
-    fetchOptions,
-  }: {
+                     method,
+                     body,
+                     fetchOptions
+                   }: {
     method: HttpMethod;
     body?: BodyParam | undefined;
     fetchOptions?: RequestInit | undefined;
@@ -241,7 +246,7 @@ export class ApiService {
       method,
       mode: 'cors',
       body: this.configureBody(body),
-      ...fetchOptions,
+      ...fetchOptions
     };
   }
 
@@ -279,7 +284,7 @@ export class ApiService {
         new RequestError(
           {
             code: response.status,
-            text: response.statusText,
+            text: response.statusText
           },
           content
         )
@@ -317,8 +322,8 @@ export class ApiService {
       body: {
         clientId: 1,
         grantType: 'refresh_token',
-        refreshToken: this.getRefreshToken(),
-      },
+        refreshToken: this.getRefreshToken()
+      }
     });
 
     const request = new Request(url, options);
@@ -326,7 +331,7 @@ export class ApiService {
     this.logRequest(request, 'Refresh token');
 
     const middlewareOptions: ApiResponseMiddlewareOptionsType = {
-      startTime: Date.now(),
+      startTime: Date.now()
     };
 
     return fetch(request)
@@ -337,7 +342,7 @@ export class ApiService {
         this.handleErrors(response)
       )
       .then((body) => {
-        this.setAccessToken(body.data.accessToken);
+        this.setAccessToken(body.data.accessToken, false);
         this.setRefreshToken(body.data.refreshToken);
 
         return true;
@@ -380,7 +385,7 @@ export class ApiService {
       this.logRequest(newRequest);
 
       const middlewareOptions: ApiResponseMiddlewareOptionsType = {
-        startTime: Date.now(),
+        startTime: Date.now()
       };
 
       return fetch(newRequest).then((response) =>
@@ -400,13 +405,13 @@ export class ApiService {
   }
 
   createRequest({
-    method,
-    path,
-    body,
-    params,
-    absoluteUrl,
-    fetchOptions,
-  }: RequestOptions): Request {
+                  method,
+                  path,
+                  body,
+                  params,
+                  absoluteUrl,
+                  fetchOptions
+                }: RequestOptions): Request {
     const url = absoluteUrl || this.getRequestUrl(path, params);
     const options = this.configureOptions({ method, body, fetchOptions });
 
@@ -419,7 +424,7 @@ export class ApiService {
     options: ApiResponseMiddlewareOptionsType
   ): Promise<Response> {
     const middlewareList: Array<ApiResponseMiddlewareType> = [
-      this.logResponse.bind(this),
+      this.logResponse.bind(this)
     ];
 
     if (this.config.useRefreshToken) {
@@ -439,7 +444,7 @@ export class ApiService {
     this.logRequest(request);
 
     const middlewareOptions: ApiResponseMiddlewareOptionsType = {
-      startTime: Date.now(),
+      startTime: Date.now()
     };
 
     return fetch(request)
@@ -462,7 +467,7 @@ export class ApiService {
       post: this.bindHttpMethodToRequest(HTTP_METHODS.POST),
       put: this.bindHttpMethodToRequest(HTTP_METHODS.PUT),
       delete: this.bindHttpMethodToRequest(HTTP_METHODS.DELETE),
-      patch: this.bindHttpMethodToRequest(HTTP_METHODS.PATCH),
+      patch: this.bindHttpMethodToRequest(HTTP_METHODS.PATCH)
     } as const;
   }
 }
