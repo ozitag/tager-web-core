@@ -1,3 +1,5 @@
+import RequestError from '../services/RequestError';
+
 export type Option<V = string> = {
   value: V;
   label: string;
@@ -18,33 +20,27 @@ export interface BaseResourceType {
   meta: unknown;
 }
 
-export interface ResourceType<
-  DataType,
+export interface ResourceType<DataType,
   Status extends string = FetchStatus,
-  ErrorType = unknown,
-  MetaType = unknown
-> extends BaseResourceType {
+  ErrorType = Nullable<RequestError>,
+  MetaType = unknown> extends BaseResourceType {
   data: DataType;
   status: Status;
   error: ErrorType;
   meta: MetaType;
 }
 
-export interface PaginatedResourceType<
-  EntityType,
+export interface PaginatedResourceType<EntityType,
   Status extends string = FetchStatus,
-  ErrorType = unknown
-> extends BaseResourceType {
+  ErrorType = unknown> extends BaseResourceType {
   data: Array<EntityType>;
   status: Status;
   error: ErrorType;
   meta: Nullable<PaginationMeta>;
 }
 
-export type ResourceMapType<Key extends string | number, ResourceData> = Record<
-  Key,
-  ResourceType<ResourceData>
->;
+export type ResourceMapType<Key extends string | number, ResourceData> = Record<Key,
+  ResourceType<ResourceData>>;
 
 export type QueryParams = { [key: string]: any };
 
