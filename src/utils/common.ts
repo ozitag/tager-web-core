@@ -166,8 +166,8 @@ export function getImageTypeFromUrl(url: string | null): string | null {
 export function createResource<DataType>(
   data: DataType,
   status: FetchStatus,
-  error?: RequestErrorType,
-): ResourceType<DataType, FetchStatus, RequestErrorType> {
+  error?: RequestErrorType
+): ResourceType<DataType> {
   return {
     data,
     status,
@@ -179,7 +179,7 @@ export function createResource<DataType>(
 export function createResourceLoader<DataType>(initialData: DataType) {
   return {
     getInitialResource(): ResourceType<DataType> {
-      return createResource(initialData, FETCH_STATUSES.IDLE, null);
+      return createResource(initialData, FETCH_STATUSES.IDLE);
     },
     pending(data?: DataType): ResourceType<DataType> {
       const resourceData = data === undefined ? initialData : data;

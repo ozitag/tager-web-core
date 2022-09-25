@@ -451,7 +451,18 @@ export class ApiService {
       .then((response) =>
         this.runResponseMiddlewares(response, request, middlewareOptions)
       )
-      .then(this.handleErrors.bind(this));
+      .then(this.handleErrors.bind(this))
+      .catch(e => {
+        if (e instanceof TypeError && e.message === 'Failed to fetch') {
+          throw new RequestError(
+            {
+              code: 0,
+              text: 'Server is not available'
+            }, {});
+        }
+
+        throw e;
+      });
   }
 
   bindHttpMethodToRequest(method: HttpMethod): HttpRequestFunction {

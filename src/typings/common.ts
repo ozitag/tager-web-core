@@ -11,10 +11,10 @@ export type ConstantMap<C extends string> = Readonly<Record<C, C>>;
 
 export type FetchStatus = 'IDLE' | 'LOADING' | 'SUCCESS' | 'FAILURE';
 
-export type RequestErrorType = Nullable<{
+export type RequestErrorType = {
   statusCode: number;
   errorMessage: string;
-}>;
+};
 
 export interface BaseResourceType {
   data: unknown;
@@ -25,7 +25,7 @@ export interface BaseResourceType {
 
 export interface ResourceType<DataType,
   Status extends string = FetchStatus,
-  ErrorType = RequestErrorType,
+  ErrorType = Nullable<RequestErrorType>,
   MetaType = unknown> extends BaseResourceType {
   data: DataType;
   status: Status;
