@@ -9,9 +9,8 @@ import {
   FetchStatus,
   Nullish,
   PaginationMeta,
-  PaginatedResourceType
+  PaginatedResourceType, RequestErrorType
 } from '../typings/common';
-import { RequestError } from '../main';
 
 /** https://github.com/zeit/next.js/issues/5354#issuecomment-520305040 */
 export function isBrowser(): boolean {
@@ -167,8 +166,8 @@ export function getImageTypeFromUrl(url: string | null): string | null {
 export function createResource<DataType>(
   data: DataType,
   status: FetchStatus,
-  error?: Nullable<RequestError>
-): ResourceType<DataType, FetchStatus, Nullable<RequestError>> {
+  error?: RequestErrorType,
+): ResourceType<DataType, FetchStatus, RequestErrorType> {
   return {
     data,
     status,
@@ -179,7 +178,7 @@ export function createResource<DataType>(
 
 export function createResourceLoader<DataType>(initialData: DataType) {
   return {
-    getInitialResource(): ResourceType<DataType, FetchStatus, Nullable<RequestError>> {
+    getInitialResource(): ResourceType<DataType> {
       return createResource(initialData, FETCH_STATUSES.IDLE, null);
     },
     pending(data?: DataType): ResourceType<DataType> {
@@ -189,7 +188,7 @@ export function createResourceLoader<DataType>(initialData: DataType) {
     fulfill(payload: DataType): ResourceType<DataType> {
       return createResource(payload, FETCH_STATUSES.SUCCESS);
     },
-    reject(error?: Nullable<RequestError>): ResourceType<DataType> {
+    reject(error?: RequestErrorType): ResourceType<DataType> {
       return createResource(initialData, FETCH_STATUSES.FAILURE, error);
     },
     cancel(): ResourceType<DataType> {

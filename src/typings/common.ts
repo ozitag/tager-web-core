@@ -1,5 +1,3 @@
-import RequestError from '../services/RequestError';
-
 export type Option<V = string> = {
   value: V;
   label: string;
@@ -13,6 +11,11 @@ export type ConstantMap<C extends string> = Readonly<Record<C, C>>;
 
 export type FetchStatus = 'IDLE' | 'LOADING' | 'SUCCESS' | 'FAILURE';
 
+export type RequestErrorType = Nullable<{
+  statusCode: number;
+  errorMessage: string;
+}>;
+
 export interface BaseResourceType {
   data: unknown;
   status: string;
@@ -22,7 +25,7 @@ export interface BaseResourceType {
 
 export interface ResourceType<DataType,
   Status extends string = FetchStatus,
-  ErrorType = Nullable<RequestError>,
+  ErrorType = RequestErrorType,
   MetaType = unknown> extends BaseResourceType {
   data: DataType;
   status: Status;
