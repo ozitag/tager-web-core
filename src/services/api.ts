@@ -138,6 +138,11 @@ export class ApiService {
     }
   }
 
+  public setAccessTokenWithoutCookie(accessToken: Nullable<string>){
+    if (!this.accessTokenCookieName) return;
+    this.accessToken = accessToken;
+  }
+
   /** Set access token on server side */
   public setAccessToken(accessToken: Nullable<string>, remember = true) {
     if (!this.accessTokenCookieName) return;
