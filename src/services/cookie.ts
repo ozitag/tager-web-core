@@ -34,17 +34,18 @@ function updateCookie(
   expiresInDays?: number,
   domain?: string
 ): void {
+  const options = {
+    path: '/',
+    expires: expiresInDays,
+    domain
+  };
+
   if (isBrowser()) {
-    Cookies.set(field, value, {
-      path: '/',
-      expires: expiresInDays,
-      domain
-    });
+    Cookies.set(field, value, options);
   } else {
     if (res && !isResSent(res)) {
       const cookie = require('cookie');
-
-      const newCookie = cookie.serialize(field, value, domain ? { domain } : {});
+      const newCookie = cookie.serialize(field, value, options);
       res.setHeader('Set-Cookie', [...getSetCookieHeaders(res), newCookie]);
     } else {
       if (!res) {
