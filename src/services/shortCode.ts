@@ -1,4 +1,4 @@
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { createUuid } from '../utils/common';
 import React from 'react';
 
@@ -123,7 +123,7 @@ class ShortCodeService {
           ShortCodeComponent,
           props
         );
-        ReactDOM.render(shortCodeReactElement, container);
+        createRoot(container).render(shortCodeReactElement);
       }
     });
   }

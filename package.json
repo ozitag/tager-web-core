@@ -1,6 +1,6 @@
 {
   "name": "@tager/web-core",
-  "version": "0.3.35",
+  "version": "0.4",
   "author": "Ivan Saranchonkau",
   "license": "MIT",
   "main": "dist/index.js",
@@ -11,7 +11,7 @@
     "src"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=20.9"
   },
   "scripts": {
     "emit-declarations": "tsc --project tsconfig.json --emitDeclarationOnly",
@@ -39,8 +39,8 @@
     "@types/lodash-es": "^4.17.5",
     "@types/node": "16.11.11",
     "@types/nprogress": "^0.2.0",
-    "@types/react": "^17.0.37",
-    "@types/react-dom": "^17.0.11",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "@types/uuid": "^8.3.3",
     "@typescript-eslint/eslint-plugin": "^5.5.0",
     "@typescript-eslint/parser": "^5.5.0",
@@ -51,18 +51,18 @@
     "fs-extra": "^10.0.0",
     "husky": "^7.0.4",
     "lint-staged": "^12.1.2",
-    "next": "^12.0.4",
+    "next": "^16.0.0",
     "prettier": "^2.5.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "rollup": "^2.60.2",
     "rollup-plugin-esbuild": "^4.7.2",
-    "typescript": "^4.5.2"
+    "typescript": "^5.9.0"
   },
   "peerDependencies": {
-    "next": "^11.1.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "next": "^16.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "lint-staged": {
     "*.ts": [
